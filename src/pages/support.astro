@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout
+  title="Wheelora™ Support"
+  description="Support for Wheelora™ account, sync, AI optimize, and membership questions."
+  canonicalPath="/support"
+>
+  <section class="legal-shell">
+    <div class="container legal-grid">
+      <div class="section-head left">
+        <span class="eyebrow">Support</span>
+        <h1>Need help with Wheelora™?</h1>
+        <p>
+          For account issues, sync behavior, legal requests, or AI optimize feedback, contact support.
+        </p>
+      </div>
+
+      <article class="legal-card">
+        <h2>Email support</h2>
+        <p class="legal-note">
+          <a href={`mailto:${site.supportEmail}`}>{site.supportEmail}</a>
+        </p>
+      </article>
+
+      <article class="legal-card">
+        <h2>Common topics</h2>
+        <ul class="legal-list">
+          <li>Guest mode and sign-in migration</li>
+          <li>Purchase restore, free limits, and Pro access</li>
+          <li>AI optimization quality and weighted options</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

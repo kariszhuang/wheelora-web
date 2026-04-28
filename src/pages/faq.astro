@@ -1,0 +1,52 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqs } from "../data/site";
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((entry) => ({
+    "@type": "Question",
+    name: entry.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: entry.a,
+    },
+  })),
+};
+---
+
+<BaseLayout
+  title="Wheelora™ FAQ | AI decision app questions"
+  description="Answers about Wheelora™ AI optimization, starter packs, local-first guest mode, and free vs Pro limits."
+  canonicalPath="/faq"
+  structuredData={[faqSchema]}
+>
+  <section class="faq-shell" id="faq">
+    <div class="container faq-layout">
+      <div class="section-head faq-head">
+        <span class="eyebrow">FAQ</span>
+        <h1>Wheelora™ frequently asked questions</h1>
+        <p>
+          Need starter packs or plans right now? Jump to
+          <a href="/#starter-packs"> Starter Packs</a> or
+          <a href="/#plans"> Plans</a>.
+        </p>
+      </div>
+
+      <div class="faq-list">
+        {faqs.map((entry, index) => (
+          <details class="faq-item" open={index === 0}>
+            <summary>
+              <span>{entry.q}</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </summary>
+            <p>{entry.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

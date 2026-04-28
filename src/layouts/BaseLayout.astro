@@ -1,0 +1,179 @@
+---
+import "../styles/global.css";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  ogImagePath?: string;
+  noindex?: boolean;
+  structuredData?: Record<string, unknown>[];
+}
+
+const {
+  title = `${site.title} | AI decision app`,
+  description = site.description,
+  canonicalPath = "/",
+  ogImagePath = "/assets/brand/wheelora-social-1200x630.png",
+  noindex = false,
+  structuredData = [],
+} = Astro.props;
+
+const canonicalUrl = new URL(canonicalPath, site.url).toString();
+const ogImageUrl = new URL(ogImagePath, site.url).toString();
+const brandIconPath = "/assets/brand/wheelora-icon-120.png";
+const organizationLogoPath = "/assets/brand/wheelora-icon-512.png";
+const faviconIcoPath = "/assets/brand/wheelora-favicon.ico";
+const appleTouchIconPath = "/assets/brand/wheelora-icon-180.png";
+const favicon32Path = "/assets/brand/wheelora-favicon-32.png";
+const favicon16Path = "/assets/brand/wheelora-favicon-16.png";
+const robotsContent = noindex
+  ? "noindex, nofollow, noarchive"
+  : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
+const baseStructuredData: Record<string, unknown>[] = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: site.name,
+    url: site.url,
+    logo: new URL(organizationLogoPath, site.url).toString(),
+    sameAs: site.socialProfiles,
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        email: site.supportEmail,
+        contactType: "customer support",
+      },
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.name,
+    url: site.url,
+    description: site.description,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: site.shortName,
+    applicationCategory: "LifestyleApplication",
+    operatingSystem: "iOS",
+    description: site.description,
+    url: site.url,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsContent} />
+    <meta
+      name="keywords"
+      content="ai decision app, decision wheel app, weighted spin wheel, local-first app, starter packs, wheelora"
+    />
+    <meta name="theme-color" content="#0d2236" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href={faviconIcoPath} sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href={favicon32Path} />
+    <link rel="icon" type="image/png" sizes="16x16" href={favicon16Path} />
+    <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIconPath} />
+    <link rel="manifest" href="/site.webmanifest" />
+    <title>{title}</title>
+    {baseStructuredData.concat(structuredData).map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="/">
+            <img
+              src={brandIconPath}
+              alt="Wheelora logo"
+              width="44"
+              height="44"
+              loading="eager"
+              decoding="async"
+            />
+            <span>
+              <strong>{site.name}</strong>
+              <small>AI decision app</small>
+            </span>
+          </a>
+
+          <nav class="desktop-nav" aria-label="Primary">
+            {site.nav.map((item) => (
+              <a href={item.href}>{item.label}</a>
+            ))}
+          </nav>
+
+          <a class="button button-ghost header-cta" href={site.waitlistUrl}>
+            Join waitlist
+          </a>
+        </div>
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-grid">
+          <div class="footer-brand">
+            <img
+              src={brandIconPath}
+              alt="Wheelora logo"
+              width="40"
+              height="40"
+              loading="lazy"
+              decoding="async"
+            />
+            <div>
+              <strong>{site.shortName}</strong>
+              <p>Local-first AI wheels for everyday decisions.</p>
+            </div>
+          </div>
+
+          <div class="footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/faq">FAQ</a>
+            <a href="/support">Support</a>
+          </div>
+        </div>
+      </footer>
+
+      <div class="mobile-cta">
+        <a class="button button-dark" href="/#demo">Try demo</a>
+        <a class="button button-soft" href={site.waitlistUrl}>Join waitlist</a>
+      </div>
+    </div>
+  </body>
+</html>

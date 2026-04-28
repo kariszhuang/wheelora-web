@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Wheelora™ | Page not found"
+  description="This Wheelora™ page does not exist. Return to the AI decision app homepage."
+  canonicalPath="/404"
+  noindex={true}
+>
+  <section class="notfound-shell">
+    <div class="container">
+      <article class="notfound-card">
+        <div class="notfound-code">404 not found</div>
+        <h1>That page is off the wheel</h1>
+        <p>
+          The route you requested does not exist. Go back to the Wheelora™ main flow and keep your
+          decision momentum.
+        </p>
+        <div class="button-row notfound-actions">
+          <a class="button button-primary" href="/">Back to homepage</a>
+          <a class="button button-secondary" href="/faq">Open FAQ</a>
+          <a class="button button-secondary" href="/#waitlist">Join waitlist</a>
+        </div>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

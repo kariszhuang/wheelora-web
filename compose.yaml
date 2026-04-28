@@ -1,0 +1,21 @@
+services:
+  web-dev:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "4321:4321"
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+    command: sh -c "bun install --frozen-lockfile && bun run dev"
+
+  web-preview:
+    build:
+      context: .
+      target: production
+    ports:
+      - "4323:4321"
+
+volumes:
+  web_node_modules:

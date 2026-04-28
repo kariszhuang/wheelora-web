@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LegalDocument from "../components/LegalDocument.astro";
+
+const legalApiBase =
+  import.meta.env.PUBLIC_LEGAL_API_BASE?.trim() || "";
+---
+
+<BaseLayout
+  title="Wheelora™ | Terms of Service"
+  description="Read Wheelora™ Terms of Service on wheelora.ai."
+  canonicalPath="/terms"
+>
+  <LegalDocument
+    title="Terms of Service"
+    eyebrow="Legal"
+    intro="This page stays on wheelora.ai and renders legal content provided by the Wheelora™ backend API."
+    docPath="terms-of-service"
+    fallbackApiBase={legalApiBase}
+  />
+</BaseLayout>

@@ -1,0 +1,5 @@
+/*
+  X-Frame-Options: SAMEORIGIN
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()

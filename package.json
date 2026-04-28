@@ -1,0 +1,23 @@
+{
+  "name": "wheelora-web",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Educational Astro + Svelte web project for a fast, accessible AI decision wheel experience.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0",
+    "build": "astro build && bun run postbuild",
+    "postbuild": "node scripts/clean-sitemap.js",
+    "preview": "astro preview --host 0.0.0.0",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/svelte": "^8.0.5",
+    "astro": "^6.1.9",
+    "lucide-svelte": "^1.0.1",
+    "svelte": "^5.55.5"
+  }
+}

@@ -1,0 +1,25 @@
+---
+interface Props {
+  title: string;
+  eyebrow: string;
+  intro: string;
+  docPath: "terms-of-service" | "privacy-policy";
+  fallbackApiBase?: string;
+}
+
+const {
+  title: _title,
+  eyebrow: _eyebrow,
+  intro: _intro,
+  docPath: _docPath,
+  fallbackApiBase: _fallbackApiBase = "",
+} = Astro.props;
+---
+
+<section class="legal-shell">
+  <div class="container legal-grid">
+    <article class="legal-card legal-rendered">
+      __LEGAL_CONTENT__
+    </article>
+  </div>
+</section>
