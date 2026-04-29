@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+---
+
+<BaseLayout
+  title="Wheelora™ Data Deletion"
+  description="Request deletion of your Wheelora™ account and associated synced app data."
+  canonicalPath="/data-deletion"
+>
+  <section class="legal-shell">
+    <div class="container legal-grid">
+      <div class="section-head left">
+        <span class="eyebrow">Privacy controls</span>
+        <h1>Delete your Wheelora™ account data</h1>
+        <p>
+          Signed-in users can delete their account and synced app data directly in the Wheelora app.
+        </p>
+      </div>
+
+      <article class="legal-card">
+        <h2>In the app</h2>
+        <ol class="legal-list">
+          <li>Open Wheelora and sign in to the account you want to delete.</li>
+          <li>Go to Settings.</li>
+          <li>Choose Privacy controls, then Delete account and data.</li>
+        </ol>
+      </article>
+
+      <article class="legal-card">
+        <h2>Email request</h2>
+        <p class="legal-note">
+          You can also request account or data deletion at <a href={`mailto:${site.supportEmail}?subject=Wheelora%20data%20deletion%20request`}>{site.supportEmail}</a>.
+        </p>
+        <p class="legal-note">
+          Include the email address tied to your Wheelora sign-in so we can verify and process the request.
+        </p>
+      </article>
+
+      <article class="legal-card">
+        <h2>What may remain</h2>
+        <p class="legal-note">
+          Some app store, subscription, payment, provider, security, backup, or legally required records may be retained outside the Wheelora app account.
+        </p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

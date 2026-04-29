@@ -79,7 +79,8 @@ function renderInline(value: string) {
     .replace(/"([^"]+)"/g, "&quot;$1&quot;")
     .replace(
       /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
-      (email) => `<a href="mailto:${email}">${email}</a>`,
+      (email) =>
+        `<!--email_off--><a href="mailto:${email}">${email}</a><!--/email_off-->`,
     );
 }
 
@@ -179,7 +180,7 @@ async function renderLegalPage(pathname: "/terms" | "/privacy") {
     return withSecurityHeaders(
       new Response(template.replace(legalContentMarker, injected), {
         headers: {
-          "Cache-Control": "no-cache",
+          "Cache-Control": "no-cache, no-transform",
           "Content-Type": types[".html"],
         },
       }),
@@ -192,7 +193,7 @@ async function renderLegalPage(pathname: "/terms" | "/privacy") {
       new Response(template.replace(legalContentMarker, fallback), {
         status: 502,
         headers: {
-          "Cache-Control": "no-cache",
+          "Cache-Control": "no-cache, no-transform",
           "Content-Type": types[".html"],
         },
       }),
