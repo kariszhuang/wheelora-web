@@ -1,0 +1,169 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Wheelora invite | Wheelora™"
+  description="Open a Wheelora referral invite."
+  canonicalPath="/r"
+  noindex={true}
+  appUrl="__REFERRAL_APP_URL__"
+>
+  <Fragment slot="head">
+    <style>
+      .referral-page {
+        min-height: 70vh;
+        padding: clamp(3rem, 8vw, 5.5rem) 0;
+        display: grid;
+        place-items: center;
+      }
+
+      .referral-card {
+        width: min(100%, 520px);
+        margin: 0 auto;
+        padding: clamp(1.35rem, 5vw, 2rem);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 28px;
+        background: rgba(15, 23, 42, 0.74);
+        box-shadow: 0 24px 70px rgba(2, 6, 23, 0.28);
+        text-align: center;
+      }
+
+      .referral-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        border-radius: 1.35rem;
+        display: grid;
+        place-items: center;
+        background: rgba(110, 231, 183, 0.12);
+        color: #6ee7b7;
+        font-size: 1.75rem;
+      }
+
+      .referral-card h1 {
+        margin: 0;
+        font-size: clamp(2.15rem, 7vw, 3.8rem);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .referral-card p {
+        max-width: 27rem;
+        margin: 1rem auto 0;
+        color: #b9c6d8;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+
+      .referral-code {
+        margin: 1.3rem auto 0;
+        width: fit-content;
+        max-width: 100%;
+        padding: 0.78rem 1.05rem;
+        border-radius: 999px;
+        border: 1px solid rgba(110, 231, 183, 0.28);
+        background: rgba(110, 231, 183, 0.1);
+        color: #f8fafc;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        overflow-wrap: anywhere;
+      }
+
+      .referral-actions {
+        margin-top: 1.45rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .referral-note {
+        margin-top: 0.9rem !important;
+        font-size: 0.86rem !important;
+      }
+    </style>
+  </Fragment>
+
+  <section class="referral-page" aria-labelledby="referral-title">
+    <article class="referral-card">
+      <div class="referral-icon" aria-hidden="true">✦</div>
+      <h1 id="referral-title">You’ve got a Wheelora invite</h1>
+      <p>Use code <strong>__REFERRAL_CODE__</strong>. You may get 15 AI credits after sign-up.</p>
+      <div class="referral-code">__REFERRAL_CODE__</div>
+      <div class="referral-actions">
+        <a
+          class="button button-primary"
+          id="open-referral-app"
+          href="__REFERRAL_APP_URL__"
+          data-app-url="__REFERRAL_APP_URL__"
+          data-open-wheelora
+          data-release-only="released"
+        >
+          Open this invite
+        </a>
+        <a
+          class="button button-secondary"
+          href="/#waitlist"
+          data-release-only="prelaunch"
+        >
+          Join waitlist
+        </a>
+        <button
+          class="button button-secondary"
+          type="button"
+          id="copy-referral-code"
+          aria-live="polite"
+        >
+          Copy invite code
+        </button>
+        <a
+          class="button button-secondary"
+          href="/#waitlist"
+          data-app-store-link
+          data-release-only="released"
+        >
+          Get Wheelora
+        </a>
+      </div>
+      <p class="referral-note" data-release-only="prelaunch">
+        Save the code now. We’ll let you know when Wheelora is ready to open it.
+      </p>
+      <p class="referral-note" data-release-only="released">
+        Opens this invite in Wheelora. If the app is not installed, you can
+        continue to the App Store.
+      </p>
+    </article>
+  </section>
+
+  <script>
+    (() => {
+      const code = "__REFERRAL_CODE_JS__";
+      try {
+        window.localStorage?.setItem("wheelora_pending_referral_code", code);
+      } catch {
+        // localStorage can be disabled; the app link still carries the code.
+      }
+
+      const openButton = document.getElementById("open-referral-app");
+      openButton?.addEventListener("click", () => {
+        try {
+          window.localStorage?.setItem("wheelora_pending_referral_code", code);
+        } catch {}
+      });
+
+      const copyButton = document.getElementById("copy-referral-code");
+      copyButton?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          copyButton.textContent = "✓ Code copied";
+          window.setTimeout(() => {
+            copyButton.textContent = "Copy invite code";
+          }, 2_000);
+        } catch {
+          copyButton.textContent = "Copy invite code";
+        }
+      });
+    })();
+  </script>
+</BaseLayout>

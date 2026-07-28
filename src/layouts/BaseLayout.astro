@@ -1,14 +1,28 @@
 ---
 import "../styles/global.css";
-import { site } from "../data/site";
+import { productFeatureCards, promises, site } from "../data/site";
+import { HOME_COPY, type HomeCopy } from "../i18n/home";
+import { DEFAULT_LOCALE, getLocale, localizePath, SUPPORTED_LOCALES, type LocaleCode } from "../i18n/locales";
+
+type BreadcrumbItem = {
+  name: string;
+  path: string;
+};
 
 interface Props {
   title?: string;
   description?: string;
   canonicalPath?: string;
   ogImagePath?: string;
+  ogType?: "website" | "article";
+  dateModified?: string;
+  breadcrumbItems?: BreadcrumbItem[];
   noindex?: boolean;
+  deferSeo?: boolean;
   structuredData?: Record<string, unknown>[];
+  appUrl?: string;
+  locale?: LocaleCode;
+  copy?: HomeCopy;
 }
 
 const {
@@ -16,165 +30,437 @@ const {
   description = site.description,
   canonicalPath = "/",
   ogImagePath = "/assets/brand/wheelora-social-1200x630.png",
+  ogType = "website",
+  dateModified = site.dateModified,
+  breadcrumbItems,
   noindex = false,
+  deferSeo = false,
   structuredData = [],
+  appUrl = "wheelora://",
+  locale = DEFAULT_LOCALE,
+  copy,
 } = Astro.props;
 
-const canonicalUrl = new URL(canonicalPath, site.url).toString();
-const ogImageUrl = new URL(ogImagePath, site.url).toString();
+const siteRoot = site.url.replace(/\/$/, "");
+const activeLocale = getLocale(locale) ?? getLocale(DEFAULT_LOCALE)!;
+const availableLocales = SUPPORTED_LOCALES.filter((entry) => HOME_COPY[entry.code]);
+const localizedCanonicalPath = canonicalPath === "/" ? localizePath(activeLocale.code, canonicalPath) : canonicalPath;
+const normalizeCanonicalPath = (path: string) => {
+  if (path === "/") return "/";
+  if (path.includes("#") || path.includes("?")) return path;
+  if (/\.[a-z0-9]+$/i.test(path)) return path;
+  return path.endsWith("/") ? path : `${path}/`;
+};
+const canonicalUrl = new URL(normalizeCanonicalPath(localizedCanonicalPath), `${siteRoot}/`).toString();
+const ogImageUrl = new URL(ogImagePath, `${siteRoot}/`).toString();
+const ogImageAlt = `${site.name} social preview for ${title}`;
 const brandIconPath = "/assets/brand/wheelora-icon-120.png";
 const organizationLogoPath = "/assets/brand/wheelora-icon-512.png";
 const faviconIcoPath = "/assets/brand/wheelora-favicon.ico";
 const appleTouchIconPath = "/assets/brand/wheelora-icon-180.png";
 const favicon32Path = "/assets/brand/wheelora-favicon-32.png";
 const favicon16Path = "/assets/brand/wheelora-favicon-16.png";
+const organizationLogoUrl = new URL(organizationLogoPath, `${siteRoot}/`).toString();
 const robotsContent = noindex
   ? "noindex, nofollow, noarchive"
   : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
+const organizationId = `${siteRoot}/#organization`;
+const websiteId = `${siteRoot}/#website`;
+const softwareId = `${siteRoot}/#software`;
+const webpageId = `${canonicalUrl}#webpage`;
+const breadcrumbId = `${canonicalUrl}#breadcrumb`;
+const pageLabel = title.split("|")[0]?.trim() || site.name;
+const activeBreadcrumbs =
+  breadcrumbItems ??
+  (canonicalPath === "/"
+    ? [{ name: site.name, path: localizedCanonicalPath }]
+    : [
+        { name: "Home", path: "/" },
+        { name: pageLabel, path: canonicalPath },
+      ]);
+const breadcrumbSchema =
+  activeBreadcrumbs.length > 0
+    ? {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: activeBreadcrumbs.map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: new URL(normalizeCanonicalPath(item.path), `${siteRoot}/`).toString(),
+        })),
+      }
+    : null;
+
 const baseStructuredData: Record<string, unknown>[] = [
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: site.name,
-    url: site.url,
-    logo: new URL(organizationLogoPath, site.url).toString(),
-    sameAs: site.socialProfiles,
-    contactPoint: [
+    "@graph": [
       {
-        "@type": "ContactPoint",
-        email: site.supportEmail,
-        contactType: "customer support",
+        "@type": "Organization",
+        "@id": organizationId,
+        name: site.name,
+        alternateName: ["Wheelora", "Wheelora AI", "Wheelora decision wheel"],
+        url: site.url,
+        logo: {
+          "@type": "ImageObject",
+          url: organizationLogoUrl,
+          width: 512,
+          height: 512,
+        },
+        image: organizationLogoUrl,
+        ...(site.socialProfiles.length > 0 ? { sameAs: site.socialProfiles } : {}),
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            email: site.supportEmail,
+            contactType: "customer support",
+            availableLanguage: availableLocales.map((entry) => entry.htmlLang),
+          },
+        ],
       },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: site.name,
+        alternateName: ["Wheelora AI", "AI decision wheel"],
+        url: site.url,
+        description,
+        inLanguage: activeLocale.htmlLang,
+        publisher: { "@id": organizationId },
+      },
+      {
+        "@type": ["SoftwareApplication", "MobileApplication", "WebApplication"],
+        "@id": softwareId,
+        name: site.shortName,
+        alternateName: ["Wheelora", "AI Decision Wheel", "Weighted Spin Wheel"],
+        applicationCategory: "LifestyleApplication",
+        applicationSubCategory: "Decision maker app",
+        operatingSystem: "iOS, Web",
+        description,
+        url: site.url,
+        image: ogImageUrl,
+        keywords: site.seoKeywords.join(", "),
+        featureList: copy?.proof ?? [...promises, ...productFeatureCards.map((card) => card.title)],
+        isAccessibleForFree: true,
+        publisher: { "@id": organizationId },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          category: "Free tier with optional paid plan",
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: canonicalUrl,
+        name: title,
+        description,
+        isPartOf: { "@id": websiteId },
+        about: { "@id": softwareId },
+        primaryImageOfPage: {
+          "@type": "ImageObject",
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+        },
+        inLanguage: activeLocale.htmlLang,
+        dateModified,
+        breadcrumb: breadcrumbSchema ? { "@id": breadcrumbId } : undefined,
+      },
+      ...(breadcrumbSchema ? [breadcrumbSchema] : []),
     ],
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: site.name,
-    url: site.url,
-    description: site.description,
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: site.shortName,
-    applicationCategory: "LifestyleApplication",
-    operatingSystem: "iOS",
-    description: site.description,
-    url: site.url,
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
   },
 ];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={activeLocale.htmlLang} dir={activeLocale.dir} data-app-release="prelaunch">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
-    <meta name="robots" content={robotsContent} />
-    <meta
-      name="keywords"
-      content="ai decision app, decision wheel app, weighted spin wheel, local-first app, starter packs, wheelora"
-    />
-    <meta name="theme-color" content="#0d2236" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:site_name" content={site.name} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImageUrl} />
-    <link rel="canonical" href={canonicalUrl} />
+    <meta name="theme-color" content="#f2ebdd" />
+    <meta name="application-name" content="Wheelora" />
+    <meta name="apple-mobile-web-app-title" content="Wheelora" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    {!deferSeo && (
+      <Fragment>
+        <meta name="description" content={description} />
+        <meta name="robots" content={robotsContent} />
+        <meta name="author" content="Wheelora" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:locale" content={activeLocale.ogLocale} />
+        {canonicalPath === "/" && availableLocales.filter((entry) => entry.code !== activeLocale.code).map((entry) => (
+          <meta property="og:locale:alternate" content={entry.ogLocale} />
+        ))}
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:alt" content={ogImageAlt} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content={site.name} />
+        {ogType === "article" && <meta property="article:modified_time" content={dateModified} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image:alt" content={ogImageAlt} />
+        <meta name="twitter:url" content={canonicalUrl} />
+        <link rel="canonical" href={canonicalUrl} />
+        {canonicalPath === "/" && availableLocales.map((entry) => (
+          <link rel="alternate" hreflang={entry.htmlLang} href={new URL(localizePath(entry.code, "/"), `${siteRoot}/`).toString()} />
+        ))}
+        {canonicalPath === "/" && <link rel="alternate" hreflang="x-default" href={`${siteRoot}/`} />}
+      </Fragment>
+    )}
     <link rel="icon" href={faviconIcoPath} sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href={favicon32Path} />
     <link rel="icon" type="image/png" sizes="16x16" href={favicon16Path} />
     <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIconPath} />
     <link rel="manifest" href="/site.webmanifest" />
-    <title>{title}</title>
-    {baseStructuredData.concat(structuredData).map((schema) => (
+    <link
+      rel="alternate"
+      type="text/plain"
+      href="/llms.txt"
+      title="Wheelora AI-readable site summary"
+    />
+    <link
+      rel="alternate"
+      type="text/plain"
+      href="/llms-full.txt"
+      title="Wheelora full AI-readable context"
+    />
+    {!deferSeo && <title>{title}</title>}
+    {!deferSeo && baseStructuredData.concat(structuredData).map((schema) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
     <slot name="head" />
   </head>
-  <body>
+  <body class:list={{ "home-page": canonicalPath === "/" }}>
     <div class="page-shell">
+      <a class="skip-link" href="#main-content">{copy?.skipToContent ?? "Skip to content"}</a>
+
       <header class="site-header">
         <div class="container header-inner">
-          <a class="brand" href="/">
+          <a class="brand" href={localizePath(activeLocale.code, "/")}>
             <img
               src={brandIconPath}
-              alt="Wheelora logo"
+              alt=""
               width="44"
               height="44"
               loading="eager"
               decoding="async"
             />
             <span>
-              <strong>{site.name}</strong>
-              <small>AI decision app</small>
+              <strong dir="ltr">{site.name}</strong>
+              <small>{copy?.brandTagline ?? "AI decision app"}</small>
             </span>
           </a>
 
-          <nav class="desktop-nav" aria-label="Primary">
-            {site.nav.map((item) => (
-              <a href={item.href}>{item.label}</a>
-            ))}
+          <nav class="desktop-nav" aria-label={`${site.shortName} ${copy?.brandTagline ?? "primary navigation"}`}>
+            <a href={localizePath(activeLocale.code, "/#demo")}>{copy?.nav.demo ?? "Live demo"}</a>
+            <a href={localizePath(activeLocale.code, "/#how-it-works")}>{copy?.nav.howItWorks ?? "How it works"}</a>
+            <a href={localizePath(activeLocale.code, "/#themes")}>{copy?.nav.themes ?? "Themes"}</a>
           </nav>
 
-          <a class="button button-ghost header-cta" href={site.waitlistUrl}>
-            Join waitlist
-          </a>
+          <div class="header-actions">
+            <label class="language-select">
+              <span class="sr-only">{copy?.language ?? "Language"}</span>
+              <select data-language-select aria-label={copy?.language ?? "Language"}>
+                {availableLocales.map((entry) => (
+                  <option value={localizePath(entry.code, "/")} selected={entry.code === activeLocale.code}>{entry.nativeName}</option>
+                ))}
+              </select>
+            </label>
+            <a class="button button-ghost header-cta" href={localizePath(activeLocale.code, "/#waitlist")} data-release-only="prelaunch">
+              {copy?.nav.join ?? "Join waitlist"}
+            </a>
+            <a class="button button-dark header-cta" href={appUrl} data-app-url={appUrl} data-open-wheelora data-release-only="released">
+              {copy?.hero.openApp ?? "Open Wheelora"} <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
       </header>
 
-      <main>
+      {canonicalPath === "/" && activeLocale.code === DEFAULT_LOCALE && availableLocales.length > 1 && (
+        <aside class="language-suggestion" data-language-suggestion data-language-paths={JSON.stringify(Object.fromEntries(availableLocales.map((entry) => [entry.code, localizePath(entry.code, "/")] )))} hidden aria-live="polite">
+          <span data-language-suggestion-copy></span>
+          <a class="text-link" data-language-suggestion-link></a>
+          <button type="button" data-language-suggestion-dismiss>×</button>
+        </aside>
+      )}
+
+      <main id="main-content" tabindex="-1">
         <slot />
       </main>
 
       <footer class="site-footer">
         <div class="container footer-grid">
-          <div class="footer-brand">
+          <a class="footer-brand" href={localizePath(activeLocale.code, "/")}>
             <img
               src={brandIconPath}
-              alt="Wheelora logo"
+              alt=""
               width="40"
               height="40"
               loading="lazy"
               decoding="async"
             />
             <div>
-              <strong>{site.shortName}</strong>
-              <p>Local-first AI wheels for everyday decisions.</p>
+              <strong dir="ltr">{site.shortName}</strong>
+              <p>{copy?.footer.tagline ?? "Say it. Spin it. Move forward."}</p>
             </div>
-          </div>
+          </a>
 
-          <div class="footer-links">
-            <a href="/privacy">Privacy</a>
-            <a href="/data-deletion">Data deletion</a>
-            <a href="/terms">Terms</a>
-            <a href="/faq">FAQ</a>
-            <a href="/support">Support</a>
-          </div>
+          <nav class="footer-links" aria-label={copy?.footer.tagline ?? "Footer"}>
+            {[
+              "/ai-decision-wheel", "/widget", "/faq", "/support", "/privacy", "/data-deletion", "/terms",
+            ].map((path, index) => <a href={path}>{copy?.footer.links[index] ?? ["Product guide", "Developers", "FAQ", "Support", "Privacy", "Data deletion", "Terms"][index]}</a>)}
+          </nav>
         </div>
       </footer>
 
-      <div class="mobile-cta">
-        <a class="button button-dark" href="/#demo">Try demo</a>
-        <a class="button button-soft" href={site.waitlistUrl}>Join waitlist</a>
-      </div>
     </div>
+
+    <script>
+      import { resolveAppleAppStoreUrl } from "../lib/appStoreUrl";
+      import { resolveLocaleFromTags } from "../i18n/localeMatching";
+
+      declare global {
+        interface Window {
+          __WHEELORA_APP_STORE_URL__?: string;
+        }
+      }
+
+      const releaseEventName = "wheelora:app-release";
+
+      function applyReleaseState(appStoreUrl: string | null) {
+        const release = appStoreUrl ? "released" : "prelaunch";
+        document.documentElement.dataset.appRelease = release;
+
+        if (appStoreUrl) {
+          window.__WHEELORA_APP_STORE_URL__ = appStoreUrl;
+          document.querySelectorAll<HTMLAnchorElement>("[data-app-store-link]")
+            .forEach((link) => {
+              link.href = appStoreUrl;
+            });
+        } else {
+          delete window.__WHEELORA_APP_STORE_URL__;
+        }
+
+        window.dispatchEvent(
+          new CustomEvent(releaseEventName, {
+            detail: { appStoreUrl },
+          }),
+        );
+      }
+
+      async function loadReleaseState() {
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 4_000);
+        try {
+          const response = await fetch("/api/v1/app-config/public", {
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error("App config unavailable");
+          applyReleaseState(resolveAppleAppStoreUrl(await response.json()));
+        } catch {
+          applyReleaseState(null);
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
+      }
+
+      function isWheeloraAppUrl(value: string) {
+        try {
+          return new URL(value).protocol === "wheelora:";
+        } catch {
+          return false;
+        }
+      }
+
+      function openWheelora(appUrl: string) {
+        const appStoreUrl = window.__WHEELORA_APP_STORE_URL__;
+        let leftPage = false;
+        let fallbackId = 0;
+
+        const cleanup = () => {
+          document.removeEventListener("visibilitychange", handleVisibility);
+          window.removeEventListener("pagehide", handlePageHide);
+          if (fallbackId) window.clearTimeout(fallbackId);
+        };
+        const handleVisibility = () => {
+          if (document.visibilityState !== "hidden") return;
+          leftPage = true;
+          cleanup();
+        };
+        const handlePageHide = () => {
+          leftPage = true;
+          cleanup();
+        };
+
+        document.addEventListener("visibilitychange", handleVisibility);
+        window.addEventListener("pagehide", handlePageHide, { once: true });
+
+        if (appStoreUrl) {
+          fallbackId = window.setTimeout(() => {
+            cleanup();
+            if (!leftPage) window.location.assign(appStoreUrl);
+          }, 1_300);
+        }
+
+        window.location.assign(appUrl);
+      }
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const trigger = target.closest<HTMLElement>("[data-open-wheelora]");
+        if (!trigger) return;
+
+        const appUrl = trigger.dataset.appUrl || trigger.getAttribute("href") || "";
+        if (!isWheeloraAppUrl(appUrl)) return;
+        event.preventDefault();
+        openWheelora(appUrl);
+      });
+
+      const languageSelect = document.querySelector<HTMLSelectElement>("[data-language-select]");
+      languageSelect?.addEventListener("change", () => {
+        localStorage.setItem("wheelora-language", languageSelect.value);
+        window.location.assign(languageSelect.value);
+      });
+
+      const languageSuggestion = document.querySelector<HTMLElement>("[data-language-suggestion]");
+      const suggestionDismissedKey = "wheelora-language-suggestion-dismissed";
+      if (languageSuggestion && !localStorage.getItem(suggestionDismissedKey)) {
+        const paths = JSON.parse(languageSuggestion.dataset.languagePaths || "{}") as Record<string, string>;
+        const locale = resolveLocaleFromTags(navigator.languages);
+        const path = paths[locale];
+        if (path && path !== window.location.pathname) {
+          const copy = languageSuggestion.querySelector<HTMLElement>("[data-language-suggestion-copy]");
+          const link = languageSuggestion.querySelector<HTMLAnchorElement>("[data-language-suggestion-link]");
+          if (copy && link) {
+            const label = languageSelect?.querySelector<HTMLOptionElement>(`option[value="${CSS.escape(path)}"]`)?.textContent || locale;
+            copy.textContent = `Wheelora is available in ${label}.`;
+            link.href = path;
+            link.textContent = `View in ${label}`;
+            languageSuggestion.hidden = false;
+          }
+        }
+      }
+      languageSuggestion?.querySelector("[data-language-suggestion-dismiss]")?.addEventListener("click", () => {
+        localStorage.setItem(suggestionDismissedKey, "1");
+        languageSuggestion.hidden = true;
+      });
+
+      void loadReleaseState();
+    </script>
   </body>
 </html>

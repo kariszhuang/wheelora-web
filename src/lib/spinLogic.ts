@@ -6,9 +6,6 @@ export type SpinOption = {
   weight?: number;
 };
 
-export type SpeedLevel = "Low" | "Medium" | "High";
-export type FrictionLevel = "Low" | "Medium" | "High";
-
 export const FRICTION_RANGES = {
   Low: [0.5, 0.8] as const,
   Medium: [1.0, 1.5] as const,
@@ -21,32 +18,31 @@ export const SPEED_RANGES = {
   High: [4000, 6000] as const,
 };
 
+export const FIXED_SPEED_VALUES = { Low: 700, Medium: 1600, High: 5000 } as const;
+export const FIXED_FRICTION_VALUES = { Low: 0.65, Medium: 1.25, High: 2.5 } as const;
+
 export const DURATION_ESTIMATES = {
-  "Low-Low": [7.67, 11.58] as const,
-  "Low-Medium": [4.15, 5.94] as const,
-  "Low-High": [2.13, 3.1] as const,
-  "Medium-Low": [8.64, 13.1] as const,
-  "Medium-Medium": [4.64, 6.62] as const,
-  "Medium-High": [2.36, 3.38] as const,
-  "High-Low": [8.84, 13.47] as const,
-  "High-Medium": [4.72, 6.78] as const,
-  "High-High": [2.38, 3.41] as const,
-};
+  "Low-Low": [9.01, 9.53], "Low-Medium": [4.69, 5.2], "Low-High": [2.34, 2.86],
+  "Medium-Low": [10.28, 10.51], "Medium-Medium": [5.35, 5.57], "Medium-High": [2.67, 2.9],
+  "High-Low": [12.04, 12.11], "High-Medium": [6.26, 6.33], "High-High": [3.13, 3.2],
+} as const;
 
-const MAX_OFFSET_TIME = 0.3;
-const HARD_VELOCITY_LIMIT = 2;
+export type SpeedLevel = keyof typeof SPEED_RANGES;
+export type FrictionLevel = keyof typeof FRICTION_RANGES;
 
-type PhysicsParameters = {
+export const getTapSpinSpeed = (
+  isAlreadySpinning: boolean,
+  configuredSpeed: SpeedLevel,
+): SpeedLevel => isAlreadySpinning ? "High" : configuredSpeed;
+
+type PhysicsPlan = {
   v: number;
   k: number;
-  theta_target: number;
-};
-
-type SpinPhases = {
+  thetaTarget: number;
   offset: number;
-  t_offset: number;
-  theta_phys: number;
-  T_phys: number;
+  offsetDurationMs: number;
+  physicsDurationMs: number;
+  finalTarget: number;
 };
 
 export type PhysicsSpinTarget = {
@@ -58,20 +54,18 @@ export type PhysicsSpinTarget = {
   physicsEasing: (progress: number) => number;
 };
 
-export const calculateResultFromAngle = (
-  angle: number,
-  options: SpinOption[],
-): string => {
-  const totalWeight = options.reduce((sum, opt) => sum + (opt.weight || 1), 0);
-  const pointerRelative = (0 - angle + 360) % 360;
-  let acc = 0;
+const HARD_VELOCITY_LIMIT = 2;
 
-  for (let i = 0; i < options.length; i++) {
-    const angleSize = ((options[i].weight || 1) / totalWeight) * 360;
-    if (acc + angleSize > pointerRelative) {
-      return options[i].label || options[i].text;
-    }
-    acc += angleSize;
+export const normalizePhysicsAngle = (value: number) => ((value % 360) + 360) % 360;
+
+export const calculateResultFromAngle = (angle: number, options: SpinOption[]): string => {
+  const totalWeight = options.reduce((sum, option) => sum + (option.weight || 1), 0);
+  const pointerRelative = (360 - normalizePhysicsAngle(angle)) % 360;
+  let accumulated = 0;
+
+  for (const option of options) {
+    accumulated += ((option.weight || 1) / totalWeight) * 360;
+    if (accumulated > pointerRelative) return option.label || option.text;
   }
 
   return options[0]?.label || options[0]?.text || "";
@@ -79,87 +73,39 @@ export const calculateResultFromAngle = (
 
 export const getSecureRandom = (): number => {
   if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    const array = new Uint32Array(1);
-    crypto.getRandomValues(array);
-    return array[0] / 0xffffffff;
+    return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
   }
-
   return Math.random();
 };
 
-function samplePhysicsParameters(
+const computePhysicsRange = (velocity: number, friction: number, duration: number) =>
+  (velocity / friction) * (1 - Math.exp(-friction * duration));
+
+const timeToHardLimit = (velocity: number, friction: number) =>
+  velocity <= HARD_VELOCITY_LIMIT ? 0 : -Math.log(HARD_VELOCITY_LIMIT / velocity) / friction;
+
+export function calculateFairPhysicsSpinPlan(
+  currentAngle = 0,
   speedLevel: SpeedLevel = "Medium",
   frictionLevel: FrictionLevel = "Medium",
-): PhysicsParameters {
-  const [vMin, vMax] = SPEED_RANGES[speedLevel];
-  const [kMin, kMax] = FRICTION_RANGES[frictionLevel];
+  targetAngle = getSecureRandom() * 360,
+): PhysicsPlan {
+  const v = FIXED_SPEED_VALUES[speedLevel];
+  const k = FIXED_FRICTION_VALUES[frictionLevel];
+  const physicsDurationMs = timeToHardLimit(v, k) * 1000;
+  const thetaPhys = computePhysicsRange(v, k, physicsDurationMs / 1000);
+  const thetaTarget = normalizePhysicsAngle(targetAngle);
+  const offset = normalizePhysicsAngle(thetaTarget - normalizePhysicsAngle(currentAngle + thetaPhys));
+  const offsetDurationMs = (offset / v) * 1000;
 
-  const v = vMin + getSecureRandom() * (vMax - vMin);
-  const k = kMin + getSecureRandom() * (kMax - kMin);
-  const theta_target = getSecureRandom() * 360;
-
-  return { v, k, theta_target };
-}
-
-function computePhysicsRange(v: number, k: number, T: number): number {
-  return (v / k) * (1 - Math.exp(-k * T));
-}
-
-function timeToHardLimit(v: number, k: number, hardLimit: number): number {
-  if (v <= hardLimit) return 0;
-  return -Math.log(hardLimit / v) / k;
-}
-
-function calculateSpinPhases(
-  spinTime: number,
-  params: PhysicsParameters,
-  maxRetries = 10,
-): SpinPhases | null {
-  const T = spinTime / 1000;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const theta_phys_initial = computePhysicsRange(params.v, params.k, T);
-    const theta_phys_mod = theta_phys_initial % 360;
-    const offset = (params.theta_target - theta_phys_mod + 360) % 360;
-    const t_offset = offset / params.v;
-
-    if (t_offset > MAX_OFFSET_TIME) {
-      params.theta_target = getSecureRandom() * 360;
-      continue;
-    }
-
-    const T_phys = T - t_offset;
-    if (T_phys <= 0) {
-      params.theta_target = getSecureRandom() * 360;
-      continue;
-    }
-
-    const theta_phys = computePhysicsRange(params.v, params.k, T_phys);
-
-    return {
-      offset,
-      t_offset,
-      theta_phys,
-      T_phys,
-    };
-  }
-
-  const theta_phys = computePhysicsRange(params.v, params.k, T);
   return {
-    offset: 0,
-    t_offset: 0,
-    theta_phys,
-    T_phys: T,
-  };
-}
-
-function createPhysicsEasing(k: number, T_phys_seconds: number) {
-  return (t: number): number => {
-    if (t <= 0) return 0;
-    if (t >= 1) return 1;
-
-    const normK = k * T_phys_seconds;
-    return (1 - Math.exp(-normK * t)) / (1 - Math.exp(-normK));
+    v,
+    k,
+    thetaTarget,
+    offset,
+    offsetDurationMs,
+    physicsDurationMs,
+    finalTarget: currentAngle + offset + thetaPhys,
   };
 }
 
@@ -168,47 +114,20 @@ export const generatePhysicsSpinTarget = (
   speedLevel: SpeedLevel = "Medium",
   frictionLevel: FrictionLevel = "Medium",
 ): PhysicsSpinTarget => {
-  const params = samplePhysicsParameters(speedLevel, frictionLevel);
-  const durationKey = `${speedLevel}-${frictionLevel}` as keyof typeof DURATION_ESTIMATES;
-  const [minDuration, maxDuration] = DURATION_ESTIMATES[durationKey];
-  const estimatedDuration = ((minDuration + maxDuration) / 2) * 1000;
-  const phases = calculateSpinPhases(estimatedDuration, params);
-
-  if (!phases) {
-    const rounds = 5 + getSecureRandom() * 2;
-    const finalTarget = currentAngle + 360 * rounds + getSecureRandom() * 360;
-    return {
-      finalTarget,
-      totalDurationMs: estimatedDuration,
-      offsetRatio: 0,
-      offsetDurationMs: 0,
-      physicsDurationMs: estimatedDuration,
-      physicsEasing: (t) => 1 - Math.pow(1 - t, 2),
-    };
-  }
-
-  const { offset, t_offset, T_phys } = phases;
-  const timeToHardLimitSeconds = timeToHardLimit(
-    params.v,
-    params.k,
-    HARD_VELOCITY_LIMIT,
-  );
-  const actualPhysicsTime = Math.min(T_phys, timeToHardLimitSeconds);
-  const actualTheta_phys = computePhysicsRange(
-    params.v,
-    params.k,
-    actualPhysicsTime,
-  );
-  const totalDistance = offset + actualTheta_phys;
-  const finalTarget = currentAngle + totalDistance;
-  const totalDurationMs = (t_offset + actualPhysicsTime) * 1000;
+  const plan = calculateFairPhysicsSpinPlan(currentAngle, speedLevel, frictionLevel);
+  const totalDistance = plan.finalTarget - currentAngle;
 
   return {
-    finalTarget,
-    totalDurationMs,
-    offsetRatio: totalDistance === 0 ? 0 : offset / totalDistance,
-    offsetDurationMs: t_offset * 1000,
-    physicsDurationMs: actualPhysicsTime * 1000,
-    physicsEasing: createPhysicsEasing(params.k, actualPhysicsTime),
+    finalTarget: plan.finalTarget,
+    totalDurationMs: plan.offsetDurationMs + plan.physicsDurationMs,
+    offsetRatio: totalDistance === 0 ? 0 : plan.offset / totalDistance,
+    offsetDurationMs: plan.offsetDurationMs,
+    physicsDurationMs: plan.physicsDurationMs,
+    physicsEasing: (progress) => {
+      if (progress <= 0) return 0;
+      if (progress >= 1) return 1;
+      const normalizedFriction = plan.k * (plan.physicsDurationMs / 1000);
+      return (1 - Math.exp(-normalizedFriction * progress)) / (1 - Math.exp(-normalizedFriction));
+    },
   };
 };

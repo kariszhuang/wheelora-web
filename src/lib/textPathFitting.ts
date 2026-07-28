@@ -1,10 +1,26 @@
 const ELLIPSIS = "...";
+const WHEEL_CENTER = 220;
+const WHEEL_RADIUS = WHEEL_CENTER - 4;
+const WHEEL_SIZE = WHEEL_CENTER * 2;
 
-export type TextPathFitResult = {
+type TextPathFitResult = {
   lines: string[];
   fontSize: number;
   radius: number;
   arcLength: number;
+};
+
+type WheelSectorOption = {
+  text: string;
+  weight: number;
+};
+
+type WheelSector<T extends WheelSectorOption> = {
+  clipPathId: string;
+  fontSize: number;
+  option: T;
+  path: string;
+  textPaths: Array<{ id: string; path: string; text: string }>;
 };
 
 function calcArcLength(angleDeg: number, radius: number): number {
@@ -45,22 +61,6 @@ function truncateWithEllipsis(text: string, maxChars: number): string {
   return `${text.slice(0, maxChars - ELLIPSIS.length)}${ELLIPSIS}`;
 }
 
-function normalizeWheelLines(lines: string[]): string[] {
-  const sanitized = lines.map((line) => line.trim()).filter(Boolean);
-  if (sanitized.length <= 1) return sanitized;
-
-  for (let i = 1; i < sanitized.length; i += 1) {
-    const current = sanitized[i];
-    if (/^[.,!?;:]+$/.test(current)) {
-      sanitized[i - 1] = `${sanitized[i - 1]}${current}`;
-      sanitized.splice(i, 1);
-      i -= 1;
-    }
-  }
-
-  return sanitized;
-}
-
 function fitSingleText(
   text: string,
   fontSize: number,
@@ -70,7 +70,7 @@ function fitSingleText(
   const charWidth = getCharWidth(text, fontSize);
   const lineHeight = fontSize * 1.2;
   const textHeight = bounds.outer - bounds.inner;
-  const maxLines = Math.max(1, Math.min(2, Math.floor(textHeight / lineHeight)));
+  const maxLines = Math.max(1, Math.floor(textHeight / lineHeight));
   const outerChars = Math.floor(calcArcLength(sectorAngle, bounds.outer) / charWidth);
 
   if (outerChars < 1) {
@@ -118,15 +118,14 @@ function fitSingleText(
     }
   }
 
-  const normalizedLines = normalizeWheelLines(lines);
   const allWordsUsed = wordIndex >= words.length;
-  const displayedText = normalizedLines.join(" ");
+  const displayedText = lines.join(" ");
   const truncated =
     !allWordsUsed ||
     displayedText.length < text.replace(/\s+/g, " ").trim().length * 0.95;
 
-  if (truncated && normalizedLines.length > 0) {
-    const lastLineIndex = normalizedLines.length - 1;
+  if (truncated && lines.length > 0) {
+    const lastLineIndex = lines.length - 1;
     const lineRadius = bounds.outer - lastLineIndex * lineHeight;
     const maxChars = Math.floor(calcArcLength(sectorAngle, lineRadius) / charWidth);
 
@@ -134,13 +133,17 @@ function fitSingleText(
       return { lines: [], truncated: true };
     }
 
-    normalizedLines[lastLineIndex] = truncateWithEllipsis(
-      normalizedLines[lastLineIndex],
+    lines[lastLineIndex] = truncateWithEllipsis(
+      lines[lastLineIndex],
       maxChars,
     );
   }
 
-  if (normalizedLines.length === 0) {
+  if (lines.length === 0) {
+    if (outerChars < 1) {
+      return { lines: [], truncated: true };
+    }
+
     const fallback =
       text.length > outerChars ? truncateWithEllipsis(text, outerChars) : text;
 
@@ -149,10 +152,10 @@ function fitSingleText(
       : { lines: [], truncated: true };
   }
 
-  return { lines: normalizedLines, truncated };
+  return { lines, truncated };
 }
 
-export function fitTextIntoArcPath(
+function fitTextIntoArcPath(
   text: string,
   sectorAngleDegrees: number,
   innerRadius: number,
@@ -190,6 +193,16 @@ export function fitTextIntoArcPath(
   );
   const smallResult = fitSingleText(text, smallFontSize, sectorAngleDegrees, smallBounds);
 
+  const shouldPreferSmallFont =
+    wheelSize <= 160 &&
+    text.length <= 12 &&
+    !smallResult.truncated &&
+    smallResult.lines.length < baseResult.lines.length;
+
+  if (shouldPreferSmallFont) {
+    return createFitResult(smallResult.lines, smallFontSize, smallBounds);
+  }
+
   const baseDisplayed = baseResult.lines.join("").replace(/\.\.\./g, "").length;
   if (
     baseResult.lines.length > 0 &&
@@ -217,7 +230,7 @@ export function fitTextIntoArcPath(
   return createFitResult(tinyResult.lines, tinyFontSize, tinyBounds);
 }
 
-export function createArcPath(
+function createArcPath(
   centerX: number,
   centerY: number,
   radius: number,
@@ -235,7 +248,7 @@ export function createArcPath(
   return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
 }
 
-export function calculateLineRadii(
+function calculateLineRadii(
   lines: string[],
   innerLimit: number,
   outerLimit: number,
@@ -256,4 +269,80 @@ export function calculateLineRadii(
 
   const spacing = availableHeight / Math.max(lines.length - 1, 1);
   return lines.map((_, index) => outerLimit - index * spacing);
+}
+
+const getTextAnglePadding = (sectorAngle: number): number =>
+  Math.min(Math.max(1.25, sectorAngle * 0.035), Math.max(1.25, sectorAngle / 6));
+
+function polarToCartesian(radius: number, angle: number) {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: WHEEL_CENTER + radius * Math.cos(radians),
+    y: WHEEL_CENTER + radius * Math.sin(radians),
+  };
+}
+
+function createSectorPath(startAngle: number, endAngle: number) {
+  const start = polarToCartesian(WHEEL_RADIUS, startAngle);
+  const end = polarToCartesian(WHEEL_RADIUS, endAngle);
+  const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+  return [
+    `M ${WHEEL_CENTER} ${WHEEL_CENTER}`,
+    `L ${start.x} ${start.y}`,
+    `A ${WHEEL_RADIUS} ${WHEEL_RADIUS} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`,
+    "Z",
+  ].join(" ");
+}
+
+export function layoutWheelSectors<T extends WheelSectorOption>(
+  options: T[],
+  idPrefix: string,
+): WheelSector<T>[] {
+  const totalWeight = options.reduce(
+    (sum, option) => sum + (option.weight || 1),
+    0,
+  );
+  let startAngle = 0;
+
+  return options.map((option, sectorIndex) => {
+    const sectorAngle = ((option.weight || 1) / totalWeight) * 360;
+    const endAngle = startAngle + sectorAngle;
+    const fit = fitTextIntoArcPath(
+      option.text,
+      sectorAngle,
+      WHEEL_RADIUS * 0.25,
+      WHEEL_RADIUS * 0.85,
+      WHEEL_SIZE,
+    );
+    const textInnerLimit =
+      WHEEL_RADIUS * 0.25 +
+      (WHEEL_RADIUS * 0.85 - WHEEL_RADIUS * 0.25) * 0.15;
+    const lineRadii = calculateLineRadii(
+      fit.lines,
+      textInnerLimit,
+      WHEEL_RADIUS * 0.85,
+      fit.fontSize,
+    );
+    const textAnglePadding = getTextAnglePadding(sectorAngle);
+    const sector = {
+      clipPathId: `${idPrefix}-clip-${sectorIndex}`,
+      fontSize: fit.fontSize,
+      option,
+      path: createSectorPath(startAngle, endAngle),
+      textPaths: fit.lines.map((text, lineIndex) => ({
+        id: `${idPrefix}-text-${sectorIndex}-${lineIndex}`,
+        path: createArcPath(
+          WHEEL_CENTER,
+          WHEEL_CENTER,
+          lineRadii[lineIndex],
+          startAngle + textAnglePadding - 90,
+          endAngle - textAnglePadding - 90,
+        ),
+        text,
+      })),
+    };
+    startAngle = endAngle;
+    return sector;
+  });
 }

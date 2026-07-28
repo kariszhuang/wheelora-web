@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "C5Z893H22C.com.orivalelabs.wheelora"
+        ],
+        "components": [
+          {
+            "/": "/w/*",
+            "comment": "Open Wheelora shared wheels"
+          },
+          {
+            "/": "/r/*",
+            "comment": "Open Wheelora referral invites"
+          }
+        ]
+      }
+    ]
+  }
+}

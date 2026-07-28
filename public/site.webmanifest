@@ -1,7 +1,7 @@
 {
   "name": "Wheelora",
   "short_name": "Wheelora",
-  "description": "AI decision app for smart wheels and fast choices.",
+  "description": "AI decision wheel and weighted spin wheel app for smart everyday choices.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

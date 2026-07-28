@@ -1,0 +1,208 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ThemeShowcase from "./svelte/ThemeShowcase.svelte";
+import WebDemoApp from "./svelte/WebDemoApp.svelte";
+import type { HomeCopy } from "../i18n/home";
+import type { LocaleCode } from "../i18n/locales";
+import { THEME_SHOWCASE_COPY } from "../i18n/themeShowcase.generated";
+
+interface Props {
+  copy: HomeCopy;
+  locale: LocaleCode;
+}
+
+const { copy, locale } = Astro.props;
+const journeyImages = [
+  { src: "/assets/product/cards/siri-ai-request-card.webp", height: 1020 },
+  { src: "/assets/product/cards/ai-tone-editor-card.webp", height: 1040 },
+  { src: "/assets/product/cards/dinner-result-card.webp", height: 1040 },
+];
+const featureImages = [
+  { src: "/assets/product/cards/weekend-multi-wheel-card.webp", height: 900 },
+  { src: "/assets/product/cards/widget-setup-card.webp", height: 900 },
+  { src: "/assets/product/cards/share-image-card.webp", height: 1080 },
+];
+---
+
+<BaseLayout title={copy.title} description={copy.description} canonicalPath="/" locale={locale} copy={copy}>
+  <section class="home-hero">
+    <div class="hero-grid-pattern" aria-hidden="true"></div>
+    <div class="container home-hero-grid">
+      <div class="home-hero-copy">
+        <div class="eyebrow"><span></span>{copy.hero.eyebrow}</div>
+        <h1>{copy.hero.lineOne}<br /><em>{copy.hero.lineTwo}</em></h1>
+        <p class="hero-lede">{copy.hero.lede}</p>
+        <div class="button-row hero-actions" data-release-only="prelaunch">
+          <a class="button button-primary" href="#demo">{copy.hero.tryDemo}</a>
+          <a class="button button-secondary" href="#waitlist">{copy.hero.joinList}</a>
+        </div>
+        <div class="button-row hero-actions" data-release-only="released">
+          <a class="button button-primary" href="wheelora://" data-app-url="wheelora://" data-open-wheelora>
+            {copy.hero.openApp} <span aria-hidden="true">↗</span>
+          </a>
+          <a class="button button-secondary" href="#waitlist" data-app-store-link>{copy.hero.appStore}</a>
+        </div>
+      </div>
+
+      <div id="demo" class="hero-demo">
+        <div class="demo-caption">
+          <span><i aria-hidden="true"></i>{copy.demo.caption}</span>
+          <small>{copy.demo.hint}</small>
+        </div>
+        <WebDemoApp client:only="svelte" copy={copy.demo}>
+          <div slot="fallback" class="demo-hydration-shell" aria-hidden="true">
+            <div class="demo-hydration-top"><span></span><span></span><span></span></div>
+            <div class="demo-hydration-title"></div>
+            <div class="demo-hydration-tone"></div>
+            <div class="demo-hydration-wheel"><span></span></div>
+            <div class="demo-hydration-result"></div>
+            <div class="demo-hydration-prompt"></div>
+          </div>
+        </WebDemoApp>
+      </div>
+    </div>
+  </section>
+
+  <div class="proof-rail" aria-label={copy.hero.eyebrow}>
+    <div class="container proof-rail-inner">
+      {copy.proof.map((item) => <span>{item}</span>)}
+    </div>
+  </div>
+
+  <section class="home-section journey-section" id="how-it-works">
+    <div class="container">
+      <div class="home-section-heading split-heading">
+        <div>
+          <div class="eyebrow">{copy.how.eyebrow}</div>
+          <h2>{copy.how.title}</h2>
+        </div>
+      </div>
+      <div class="journey-grid">
+        {copy.how.steps.map((item, index) => (
+          <article class="journey-card">
+            <div class="journey-copy">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+            </div>
+            <img src={journeyImages[index].src} alt={item.alt} width="660" height={journeyImages[index].height} loading="lazy" decoding="async" />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section feature-section" id="features">
+    <div class="container">
+      <div class="home-section-heading centered-heading">
+        <div class="eyebrow">{copy.features.eyebrow}</div>
+        <h2>{copy.features.title}</h2>
+      </div>
+      <div class="feature-story-grid">
+        {copy.features.stories.map((story, index) => (
+          <article class:list={{ "feature-story": true, "feature-story-wide": index === 0 }}>
+            <div class="feature-story-copy">
+              <span>{story.eyebrow}</span>
+              <h3>{story.title}</h3>
+              <p>{story.copy}</p>
+            </div>
+            <div class="feature-story-media">
+              <img src={featureImages[index].src} alt={story.alt} width="660" height={featureImages[index].height} loading="lazy" decoding="async" />
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section themes-section" id="themes">
+    <div class="container">
+      <div class="home-section-heading split-heading">
+        <div>
+          <div class="eyebrow">{copy.themes.eyebrow}</div>
+          <h2>{copy.themes.title}</h2>
+        </div>
+        <p>{copy.themes.copy}</p>
+      </div>
+      <ThemeShowcase client:visible copy={THEME_SHOWCASE_COPY[locale]} />
+    </div>
+  </section>
+
+  <section class="home-section trust-section" id="privacy">
+    <div class="container trust-grid">
+      <div class="trust-visual">
+        <img src="/assets/product/privacy-controls.webp" alt={copy.privacy.alt} width="660" height="1434" loading="lazy" decoding="async" />
+      </div>
+      <div class="trust-copy">
+        <div class="eyebrow">{copy.privacy.eyebrow}</div>
+        <h2>{copy.privacy.title}</h2>
+        <p>{copy.privacy.copy}</p>
+        <ul>{copy.privacy.points.map((point) => <li><strong>{point}</strong></li>)}</ul>
+        <a class="text-link" href="/privacy">{copy.privacy.link} <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section plans-section" id="plans">
+    <div class="container plans-grid">
+      <div class="plans-intro">
+        <div class="eyebrow">{copy.plans.eyebrow}</div>
+        <h2>{copy.plans.title}</h2>
+        <p>{copy.plans.copy}</p>
+      </div>
+      <div class="plan-card">
+        <span>{copy.plans.free.name}</span><strong>{copy.plans.free.title}</strong>
+        <ul>{copy.plans.free.points.map((point) => <li>{point}</li>)}</ul>
+      </div>
+      <div class="plan-card plan-card-pro">
+        <span>{copy.plans.pro.name}</span><strong>{copy.plans.pro.title}</strong>
+        <ul>{copy.plans.pro.points.map((point) => <li>{point}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section" id="waitlist">
+    <div class="container" data-release-only="prelaunch">
+      <div class="eyebrow">{copy.waitlist.eyebrow}</div>
+      <h2>{copy.waitlist.title}</h2>
+      <p>{copy.waitlist.copy}</p>
+      <form class="waitlist-form" data-waitlist-form>
+        <label class="sr-only" for="waitlist-email">{copy.waitlist.email}</label>
+        <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
+        <button class="button button-primary" type="submit">{copy.waitlist.join}</button>
+      </form>
+      <p class="waitlist-status" data-waitlist-status aria-live="polite"></p>
+    </div>
+    <div class="container release-cta" data-release-only="released">
+      <div class="eyebrow">{copy.waitlist.appTitle}</div>
+      <h2>{copy.waitlist.appHeading}</h2>
+      <div class="button-row">
+        <a class="button button-primary" href="wheelora://" data-app-url="wheelora://" data-open-wheelora>{copy.waitlist.openApp} <span aria-hidden="true">↗</span></a>
+        <a class="button button-secondary" href="#waitlist" data-app-store-link>{copy.waitlist.store}</a>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ saving: copy.waitlist.saving, success: copy.waitlist.success, error: copy.waitlist.error }}>
+    const form = document.querySelector("[data-waitlist-form]");
+    const status = document.querySelector("[data-waitlist-status]");
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!(form instanceof HTMLFormElement) || !form.reportValidity()) return;
+      const emailInput = form.elements.namedItem("email");
+      const button = form.querySelector("button");
+      if (!(emailInput instanceof HTMLInputElement) || !(button instanceof HTMLButtonElement)) return;
+      button.disabled = true;
+      if (status instanceof HTMLElement) { status.textContent = saving; status.dataset.state = "pending"; }
+      try {
+        const response = await fetch("/api/v1/waitlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: emailInput.value.trim(), source: "homepage" }) });
+        if (!response.ok) throw new Error("Waitlist request failed");
+        form.reset();
+        if (status instanceof HTMLElement) { status.textContent = success; status.dataset.state = "success"; }
+      } catch {
+        if (status instanceof HTMLElement) { status.textContent = error; status.dataset.state = "error"; }
+      } finally { button.disabled = false; }
+    });
+  </script>
+</BaseLayout>

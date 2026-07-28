@@ -1,0 +1,205 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { decisionGuideFaqs, lifeAreas, site } from "../data/site";
+
+const title = "AI Decision Wheel Guide | Weighted Spin Wheel App | Wheelora™";
+const description =
+  "Learn how an AI decision wheel helps create better options, use weighted probabilities, and make low-stakes choices faster with Wheelora.";
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${site.url}/ai-decision-wheel/#faq`,
+  mainEntity: decisionGuideFaqs.map((entry) => ({
+    "@type": "Question",
+    name: entry.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: entry.a,
+    },
+  })),
+};
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "@id": `${site.url}/ai-decision-wheel/#article`,
+  headline: "AI Decision Wheel Guide",
+  description,
+  mainEntityOfPage: `${site.url}/ai-decision-wheel/`,
+  dateModified: site.dateModified,
+  author: {
+    "@type": "Organization",
+    name: site.name,
+    url: site.url,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: site.name,
+    url: site.url,
+    logo: {
+      "@type": "ImageObject",
+      url: `${site.url}/assets/brand/wheelora-icon-512.png`,
+    },
+  },
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath="/ai-decision-wheel"
+  ogType="article"
+  breadcrumbItems={[
+    { name: "Home", path: "/" },
+    { name: "AI Decision Wheel Guide", path: "/ai-decision-wheel" },
+  ]}
+  structuredData={[articleSchema, faqSchema]}
+>
+  <section class="guide-hero">
+    <div class="container guide-hero-inner">
+      <div class="pill">Decision Guide</div>
+      <h1>AI decision wheel</h1>
+      <p>
+        An AI decision wheel helps you turn a messy choice into a clear spin wheel. Wheelora can
+        suggest practical options, tune the tone, support weighted probabilities, and then spin to
+        pick a low-stakes next step.
+      </p>
+      <div class="button-row" data-release-only="prelaunch">
+        <a class="button button-primary" href="/#demo">Try the demo</a>
+        <a class="button button-secondary" href="/#waitlist">Join waitlist</a>
+      </div>
+      <div class="button-row" data-release-only="released">
+        <a
+          class="button button-primary"
+          href="wheelora://"
+          data-app-url="wheelora://"
+          data-open-wheelora
+        >
+          Open Wheelora <span aria-hidden="true">↗</span>
+        </a>
+        <a class="button button-secondary" href="/#demo">Try the web wheel</a>
+        <a
+          class="button button-secondary"
+          href="/#waitlist"
+          data-app-store-link
+        >
+          Get the iPhone app
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container guide-layout">
+      <article class="guide-card guide-card-featured">
+        <h2>What is an AI decision wheel?</h2>
+        <p>
+          An AI decision wheel is a random picker that helps with the thinking before the spin.
+          Instead of forcing you to write every option perfectly, it can turn rough ideas into a
+          cleaner wheel title, useful choices, emojis, and weighting suggestions.
+        </p>
+        <p>
+          Wheelora is designed for everyday decisions like dinner, focus tasks, chores, date ideas,
+          weekend plans, shopping tradeoffs, and group choices. It is not for legal, medical,
+          financial, emergency, or safety-critical decisions.
+        </p>
+      </article>
+
+      <article class="guide-card">
+        <h2>How Wheelora works</h2>
+        <ol class="guide-steps">
+          <li>Start from a prompt or an existing list.</li>
+          <li>Let AI refine the wheel title, options, tone, and weights.</li>
+          <li>Review the options so the wheel still reflects your intent.</li>
+          <li>Spin the wheel to choose a next step.</li>
+          <li>Save several wheels, sync after signing in, or share an image or live link.</li>
+        </ol>
+      </article>
+
+      <article class="guide-card">
+        <h2>AI wheel vs basic random picker</h2>
+        <div class="comparison-table-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Need</th>
+                <th>Basic spin wheel</th>
+                <th>Wheelora</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Need">Option creation</td>
+                <td data-label="Basic spin wheel">You write every option manually.</td>
+                <td data-label="Wheelora">AI helps turn a rough prompt into useful options.</td>
+              </tr>
+              <tr>
+                <td data-label="Need">Probability</td>
+                <td data-label="Basic spin wheel">Most tools treat each option equally.</td>
+                <td data-label="Wheelora">Weighted outcomes let some options be more or less likely.</td>
+              </tr>
+              <tr>
+                <td data-label="Need">Starting fast</td>
+                <td data-label="Basic spin wheel">You begin from a blank wheel.</td>
+                <td data-label="Wheelora">AI can turn a rough prompt into an editable wheel.</td>
+              </tr>
+              <tr>
+                <td data-label="Need">Decision feel</td>
+                <td data-label="Basic spin wheel">The spin is often only decorative.</td>
+                <td data-label="Wheelora">The app uses polished, momentum-based spin physics.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section utility-band">
+    <div class="container">
+      <div class="section-header">
+        <div class="pill">Use Cases</div>
+        <h2>Good decisions for a weighted spin wheel.</h2>
+        <p>
+          Wheelora works best when the stakes are low, the options are real, and you need enough
+          momentum to stop rehashing the same choice.
+        </p>
+      </div>
+
+      <div class="guide-use-grid">
+        {lifeAreas.map((area) => (
+          <article>
+            <h3>{area.title}</h3>
+            <p>{area.copy}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container guide-layout">
+      <article class="guide-card">
+        <h2>Beyond a single spin</h2>
+        <p>
+          Wheelora supports reusable single and multi-wheel decisions, optional weights, Siri and
+          Shortcuts handoff, home-screen widgets, and sharing as an image or live link. Guest wheels
+          stay local; signing in enables sync and account privacy controls without requiring Pro.
+        </p>
+      </article>
+
+      <article class="guide-card">
+        <h2>Frequently asked questions</h2>
+        <div class="guide-faq-list">
+          {decisionGuideFaqs.map((entry) => (
+            <section>
+              <h3>{entry.q}</h3>
+              <p>{entry.a}</p>
+            </section>
+          ))}
+        </div>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

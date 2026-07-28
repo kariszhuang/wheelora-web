@@ -1,0 +1,298 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+
+const title = "Embed a Spin Wheel with the <wheelora> Tag | Wheelora™";
+const description = "Add an interactive spin wheel to any website with the Wheelora embed script, inline options, optional weights, and built-in themes.";
+const canonicalPath = "/widget";
+
+const snippetNoSlug = `<script async src="https://wheelora.ai/embed/v1.js"></script>
+
+<!-- Add this wherever you want the wheel to appear -->
+<wheelora 
+  title="Friday Night Dinner"
+  options="Pizza, Sushi, Tacos, Burgers, Salad"
+  weights="1, 1, 1, 1, 0.2">
+</wheelora>`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath={canonicalPath}
+  structuredData={[
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "@id": `${site.url}/widget/#article`,
+      headline: "How to Embed the <wheelora> Tag on Your Website",
+      description: description,
+      mainEntityOfPage: `${site.url}/widget/`,
+      dateModified: site.dateModified,
+      publisher: {
+        "@type": "Organization",
+        name: site.name,
+        url: site.url,
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "@id": `${site.url}/widget/#howto`,
+      name: "Embed a Wheelora spin wheel",
+      description,
+      step: [
+        {
+          "@type": "HowToStep",
+          name: "Load the embed script",
+          text: "Add the Wheelora embed script to the page.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Add the wheelora tag",
+          text: "Place a wheelora HTML tag where the interactive spin wheel should appear.",
+        },
+        {
+          "@type": "HowToStep",
+          name: "Set options and weights",
+          text: "Use options and optional weights attributes to define the wheel choices.",
+        },
+      ],
+      tool: {
+        "@type": "HowToTool",
+        name: "Wheelora embed script",
+      },
+    },
+  ]}
+>
+  <style>
+    .widget-hero {
+      text-align: center;
+      padding: 4rem 1rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .widget-hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      letter-spacing: -0.03em;
+    }
+    .widget-hero p {
+      font-size: 1.25rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .docs-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1rem 6rem;
+      display: grid;
+      gap: 2.5rem;
+    }
+    .panel {
+      background: var(--surface-high);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 2rem;
+      min-width: 0;
+    }
+    @media (max-width: 600px) {
+      .panel {
+        padding: 1.5rem 1rem;
+      }
+    }
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    .panel p, .panel li {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+    .panel ul {
+      padding-left: 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+    .code-block {
+      position: relative;
+      margin: 1.5rem 0;
+      max-width: 100%;
+    }
+    pre {
+      background: #000;
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-x: auto;
+      font-size: 0.95rem;
+      margin: 0;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #e2e8f0;
+    }
+    .inline-code {
+      background: var(--surface-muted);
+      color: var(--ink);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      word-break: break-word;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .copy-btn:focus-visible {
+      outline: 3px solid var(--coral);
+      outline-offset: 3px;
+    }
+    .copy-btn.copied {
+      background: #10b981;
+      border-color: #10b981;
+    }
+    .demo-stage {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--paper);
+      border-radius: 16px;
+      border: 1px dashed var(--line);
+      display: flex;
+      justify-content: center;
+    }
+    wheelora {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-height: 300px;
+    }
+  </style>
+
+  <section class="widget-hero">
+    <h1>The &lt;wheelora&gt; tag</h1>
+    <p>Embed an interactive, branded decision wheel on any website or blog with one script and one HTML block. No signup required.</p>
+  </section>
+
+  <div class="docs-container">
+    <div class="panel">
+      <h2 id="quick-start">Quick Start: Inline Data</h2>
+      <p>
+        The easiest way to add a wheel is to pass your options directly into the <span class="inline-code">&lt;wheelora&gt;</span> tag. You don't need a Wheelora account or a slug!
+      </p>
+      
+      <div class="code-block">
+        <button class="copy-btn" data-clipboard={snippetNoSlug}>Copy</button>
+        <pre><code>{snippetNoSlug}</code></pre>
+      </div>
+
+      <div class="demo-stage">
+        <script async src="/embed/v1.js"></script>
+        <wheelora 
+          title="Friday Night Dinner"
+          options="Pizza, Sushi, Tacos, Burgers, Salad"
+          weights="1, 1, 1, 1, 0.2"
+          >
+        </wheelora>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="benefits">Features & Benefits</h2>
+      <ul>
+        <li><strong>No App Installation Required:</strong> Pass comma-separated options directly in the HTML attribute.</li>
+        <li><strong>Weighted Options:</strong> Use the optional <span class="inline-code">weights</span> attribute to make certain outcomes more or less likely.</li>
+        <li><strong>Beautiful UI:</strong> Built with high-performance CSS and SVG, ensuring silky smooth animations on mobile and desktop.</li>
+        <li><strong>Branded:</strong> Features a subtle Wheelora logo link keeping the embed neat and professional.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2 id="attributes">Supported Attributes</h2>
+      <p>Customize the look and data by modifying the attributes on your <span class="inline-code">&lt;wheelora&gt;</span> tag:</p>
+      <ul>
+        <li><span class="inline-code">title</span>: The main heading for your wheel.</li>
+        <li><span class="inline-code">options</span>: A comma-separated list of items to spin for.</li>
+        <li><span class="inline-code">weights</span> (optional): A comma-separated list of numbers corresponding to each option's probability.</li>
+        <li><span class="inline-code">theme</span> (optional): <span class="inline-code">minimal</span> (default), <span class="inline-code">playful</span>, <span class="inline-code">dark</span>, or <span class="inline-code">elegant</span>.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2 id="themes">Themes & Styling</h2>
+      <p>The widget includes four themes: Minimal, Playful, Dark, and Elegant. The mobile app has 10 themes; the embed intentionally supports this smaller set of four and defaults to Minimal.</p>
+      
+      <div class="code-block">
+        <button class="copy-btn" data-clipboard={`<wheelora title="Dark Theme" options="One, Two, Three" theme="dark"></wheelora>`}>Copy</button>
+        <pre><code>&lt;wheelora 
+  title="Dark Theme"
+  options="One, Two, Three"
+  theme="dark"&gt;
+&lt;/wheelora&gt;</code></pre>
+      </div>
+
+      <div class="demo-stage" style="background: #111; border-color: #333;">
+        <wheelora 
+          title="Dark Theme"
+          options="One, Two, Three"
+          theme="dark">
+        </wheelora>
+      </div>
+
+      <div class="code-block" style="margin-top: 3rem;">
+        <button class="copy-btn" data-clipboard={`<wheelora title="Elegant Theme" options="Gold, Silver, Bronze" theme="elegant"></wheelora>`}>Copy</button>
+        <pre><code>&lt;wheelora 
+  title="Elegant Theme"
+  options="Gold, Silver, Bronze"
+  theme="elegant"&gt;
+&lt;/wheelora&gt;</code></pre>
+      </div>
+
+      <div class="demo-stage" style="background: #fffdf8; border-color: #e5e5e5;">
+        <wheelora 
+          title="Elegant Theme"
+          options="Gold, Silver, Bronze"
+          theme="elegant">
+        </wheelora>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.getAttribute('data-clipboard');
+        if (text) {
+          navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.classList.remove('copied');
+            }, 2000);
+          });
+        }
+      });
+    });
+  </script>
+</BaseLayout>

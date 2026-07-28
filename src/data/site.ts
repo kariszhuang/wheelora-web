@@ -1,113 +1,83 @@
 export const site = {
   name: "Wheelora™",
-  shortName: "Wheelora™ AI",
-  title: "Wheelora™ | The Smartest AI Decision Wheel & Spin App",
+  shortName: "Wheelora AI",
+  title: "Wheelora™ | AI Decision Wheel, Spin Wheel App & Random Picker",
   description:
-    "Stop overthinking with Wheelora™. Build smarter decision wheels with AI, launch starter packs, adjust weights, and spin to decide fast. The ultimate local-first randomizer app.",
+    "Wheelora™ turns a title into an AI-built wheel with six tones, weighted physics, multi-wheel Spin All, sharing, sync, widgets, and privacy controls.",
   url: "https://wheelora.ai",
   waitlistUrl: "/#waitlist",
   supportEmail: "support@wheelora.ai",
-  nav: [
-    { label: "Demo", href: "/#demo" },
-    { label: "AI", href: "/#features" },
-    { label: "Starter Packs", href: "/#starter-packs" },
-    { label: "Plans", href: "/#plans" },
-    { label: "FAQ", href: "/faq" },
+  language: "en-US",
+  locale: "en_US",
+  dateModified: "2026-07-13",
+  seoKeywords: [
+    "AI decision wheel",
+    "spin wheel app",
+    "weighted random picker",
+    "decision maker app",
+    "randomizer app",
+    "AI choice generator",
+    "Wheelora",
   ],
-  socialProfiles: ["https://wheelora.ai"],
+  socialProfiles: [],
 };
 
 export const promises = [
-  "Local-first guest mode before sign-in",
-  "AI optimization for wheel title, options, and weights",
-  "Starter packs for real-life decision bottlenecks",
-  "Free core usage, rewarded unlocks, and Pro scaling",
+  "Turn a title into a complete wheel with six AI tones",
+  "Weighted physics and multi-wheel Spin All",
+  "Share with an image or a live link",
+  "Local-first guest use with free signed-in sync",
 ];
 
 export const productFeatureCards = [
   {
-    title: "Local-first decision flow",
+    title: "Start locally, sync for free",
     description:
-      "Create and spin wheels without an account. Later, sign in to sync and keep your momentum.",
+      "Create as a guest with data kept on your device, then sign in for free sync across your devices.",
   },
   {
-    title: "AI optimize that edits real fields",
+    title: "A title becomes a wheel",
     description:
-      "Wheelora can improve wheel names, emojis, options, and weighting suggestions so results feel more actionable.",
+      "Enter a title and AI builds practical options in Serious, Friendly, Funny, Inspirational, Chaotic, or Sarcastic tone.",
   },
   {
-    title: "Starter packs for instant setup",
+    title: "Spin one wheel—or all of them",
     description:
-      "Skip blank-page paralysis with packs tuned for dinner, focus, routines, and social planning.",
+      "Run a weighted wheel with polished physics or use Spin All to resolve several wheels in one go.",
   },
   {
-    title: "Weighted outcomes + polished spin physics",
+    title: "Share the result your way",
     description:
-      "The app supports weighted options with smooth momentum-based spinning instead of flat randomness.",
+      "Export a result image for the group chat or send a live link people can open and spin.",
   },
   {
-    title: "Free, rewarded, and Pro paths",
+    title: "Built into the Apple ecosystem",
     description:
-      "Free remains useful, rewarded ad unlocks extend AI usage, and Pro supports heavier daily decision volume.",
+      "Use Siri and Shortcuts for hands-free decisions, plus an interactive iOS widget for a wheel on your Home Screen.",
   },
   {
-    title: "Secure sync + plan integrity",
+    title: "Personal, global, and private",
     description:
-      "Signed runtime policy, authenticated sync, and server-authoritative membership keep behavior consistent.",
+      "Choose from 10 themes and 20 languages, with clear controls for your data, analytics, and account.",
   },
 ];
 
-export const frictionCards = [
+export const searchAnswerBlocks = [
   {
-    title: "Too many options",
-    badge: "AI narrows the chaos",
-    description:
-      "Start with rough thoughts and get cleaner option sets before you spin.",
+    q: "What is Wheelora™?",
+    a: "Wheelora is an AI decision wheel app for everyday choices. It helps you write better options, choose a tone, apply weights when some outcomes should be more likely, and spin a polished wheel to pick a next step.",
   },
   {
-    title: "Low energy",
-    badge: "Calmer defaults",
-    description:
-      "Generate low-friction options that are realistic to follow through on.",
+    q: "How does the AI decision wheel work?",
+    a: "Enter a title, choose one of six tones, and Wheelora generates practical options. You can edit them, adjust weights, then spin one wheel or several with Spin All.",
   },
   {
-    title: "Group cannot decide",
-    badge: "Shared decision energy",
-    description:
-      "Use one wheel to settle group debates without endless chat loops.",
+    q: "What makes Wheelora different from a basic random picker?",
+    a: "Basic random pickers only choose from options you already wrote. Wheelora builds the options from a title, adds weighted physics, multi-wheel spins, sharing, sync, themes, and Apple integrations.",
   },
   {
-    title: "Need momentum fast",
-    badge: "One tap to action",
-    description:
-      "Starter packs and AI cleanup get you from stuck to decided quickly.",
-  },
-];
-
-export const starterPacks = [
-  {
-    emoji: "🍜",
-    title: "Dinner Rescue",
-    blurb: "Fast meals, date-night pivots, and low-drama plans that stop the back-and-forth.",
-    pills: ["Tonight, solved", "Playful", "Too many options"],
-  },
-  {
-    emoji: "⚡",
-    title: "Focus Sprint",
-    blurb: "Turn procrastination into a sequence of bite-size wins, prompts, and realistic next moves.",
-    pills: ["Need a push", "Motivating", "Work & study"],
-  },
-  {
-    emoji: "🛋️",
-    title: "Low Battery Mode",
-    blurb: "AI-generated options for chores, errands, and home resets when your brain is running on fumes.",
-    pills: ["Low energy", "Cozy", "Home & routine"],
-  },
-  {
-    emoji: "🗺️",
-    title: "Weekend Adventure",
-    blurb: "City crawls, tiny side quests, budget choices, and spontaneous plans that still feel smart.",
-    pills: ["Friends & dates", "Adventurous", "Group can’t decide"],
+    q: "When should I use a weighted spin wheel?",
+    a: "Use weighting when every option should not have the same chance. A low-effort chore might deserve a higher chance than a deep-clean task, while a salad option might have a lower chance on a dinner wheel.",
   },
 ];
 
@@ -146,7 +116,7 @@ export const aiTones = [
   },
   {
     id: "unhinged",
-    label: "Unhinged",
+    label: "Chaotic",
     emoji: "🤪",
     color: "#EF4444",
     description:
@@ -185,45 +155,18 @@ export const lifeAreas = [
   },
 ];
 
-export const planCards = [
-  {
-    title: "Free",
-    points: [
-      "Guest mode and local-first wheels",
-      "Daily AI optimize allowance",
-      "Starter packs and weighted spins",
-    ],
-  },
-  {
-    title: "Free + Rewarded Unlocks",
-    points: [
-      "Optional ad watch for bonus optimize credits",
-      "Keeps free users from hard stops",
-      "No forced upgrade for occasional heavy days",
-    ],
-  },
-  {
-    title: "Pro",
-    points: [
-      "Higher daily AI capacity",
-      "Built for heavy repeat usage",
-      "Subscription entitlement sync",
-    ],
-  },
-];
-
 export const faqs = [
   {
     q: "What makes Wheelora™ different from basic spin wheels?",
-    a: "Wheelora is not only a random spinner. It starts with AI-assisted wheel building, local-first creation, starter packs, and weighted option design.",
+    a: "Wheelora is not only a random spinner. It builds a wheel from your title, supports six tones and weighted physics, and can spin multiple wheels together.",
   },
   {
     q: "Can I use Wheelora without an account?",
-    a: "Yes. You can start as a guest and keep working locally, then sign in later when you want cloud sync.",
+    a: "Yes. You can start as a local-first guest, then sign in later for free cloud sync.",
   },
   {
     q: "What does AI optimization actually change?",
-    a: "AI can improve wheel title, emoji, options, and weighting suggestions to make the final spin more practical.",
+    a: "AI turns a title into editable options in one of six tones and can improve the wheel's title, emoji, options, and weighting suggestions.",
   },
   {
     q: "How do free, rewarded unlocks, and Pro work?",
@@ -232,5 +175,24 @@ export const faqs = [
   {
     q: "Is Wheelora advice for legal, medical, or safety-critical decisions?",
     a: "No. Wheelora is for everyday decision support and entertainment. Do not use outputs as professional or safety-critical advice.",
+  },
+];
+
+export const decisionGuideFaqs = [
+  {
+    q: "What is an AI decision wheel?",
+    a: "An AI decision wheel is a spin wheel that uses AI to help create, clean up, and balance the options before a random or weighted spin selects one.",
+  },
+  {
+    q: "Is Wheelora a random picker?",
+    a: "Yes, Wheelora includes random picking through a spin wheel, plus title-to-wheel AI, six tone controls, weighted probabilities, and multi-wheel Spin All.",
+  },
+  {
+    q: "Can Wheelora help groups decide?",
+    a: "Yes. Wheelora is useful for low-stakes group choices like dinner, weekend plans, date ideas, chores, and activity picks.",
+  },
+  {
+    q: "Should I use Wheelora for important professional decisions?",
+    a: "No. Wheelora is built for everyday decisions and entertainment, not legal, medical, financial, emergency, or safety-critical decisions.",
   },
 ];

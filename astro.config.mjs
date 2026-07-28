@@ -15,7 +15,7 @@ export default defineConfig({
   integrations: [
     svelte(),
     sitemap({
-      filter: (page) => page !== "https://wheelora.ai/404/",
+      filter: (page) => !["https://wheelora.ai/404/", "https://wheelora.ai/w/"].includes(page),
       serialize(item) {
         // Use YYYY-MM-DD format
         const now = new Date();

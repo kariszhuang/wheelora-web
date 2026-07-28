@@ -1,9 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { activeTheme } from "../../store/theme";
-  import { calculateResultFromAngle, generatePhysicsSpinTarget } from "../../lib/spinLogic";
-  import { calculateLineRadii, createArcPath, fitTextIntoArcPath } from "../../lib/textPathFitting";
-  import { Sparkles, Dices, ChevronRight, Home } from "lucide-svelte";
+  import { calculateResultFromAngle, generatePhysicsSpinTarget, getTapSpinSpeed } from "../../lib/spinLogic";
+  import { layoutWheelSectors } from "../../lib/textPathFitting";
+  import { Sparkles, ChevronRight, Home } from "lucide-svelte";
+  import HandPointerIcon from "./HandPointerIcon.svelte";
+  import type { DemoCopy } from "../../i18n/home";
 
   type DemoWheel = {
     id: string;
@@ -14,17 +16,19 @@
     prompt: string;
     options: { label: string; weight: number }[];
   };
+
+  export let copy: DemoCopy | undefined = undefined;
   
   const themes = {
     minimal: {
-      palette: ["#FCA5A5", "#FDBA74", "#FDE047", "#86EFAC", "#93C5FD", "#A5B4FC", "#D8B4FE", "#FDA4AF"],
-      textColors: ["#111827", "#111827", "#111827", "#111827", "#111827", "#111827", "#111827", "#111827"],
+      palette: ["#C7D2FE", "#FED7AA", "#BBF7D0", "#FBCFE8", "#BAE6FD", "#FDE68A", "#DDD6FE", "#D9F99D"],
+      textColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
       panelBg: "#FFFFFF",
       textColor: "#111827",
       buttonBg: "#111827",
       buttonText: "#FFFFFF",
       wheelCenterBg: "#FFFFFF",
-      wheelCenterIcon: "#111827",
+      wheelCenterIcon: "#111111",
       border: "1px solid #E5E7EB",
       boxShadow: "0 20px 40px rgba(0,0,0,0.05)",
       badgeBg: "#F3F4F6",
@@ -36,41 +40,43 @@
       pageBg: "#FFFFFF",
       listItemBg: "#F9FAFB",
       listItemBorder: "#F3F4F6",
-      freshResultBg: "#EEF2FF",
-      freshResultText: "#4F46E5"
+      freshResultBg: "#E0E7FF",
+      freshResultText: "#3730A3",
+      freshResultBorder: "#A5B4FC"
     },
     playful: {
-      palette: ["#FF1493", "#00FF00", "#00FFFF", "#FFD700", "#FF4500", "#8A2BE2", "#FF1493", "#7FFF00"],
-      textColors: ["#FFFFFF", "#000000", "#000000", "#000000", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#000000"],
-      panelBg: "#FFFDF4",
-      textColor: "#111111",
+      palette: ["#FF6B6B", "#06D6A0", "#FFD166", "#4D96FF", "#FF8FAB", "#2EC4B6", "#FF9F1C", "#A855F7"],
+      textColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
+      panelBg: "#FFFFFF",
+      textColor: "#111827",
       buttonBg: "#FF5A36",
       buttonText: "#FFFFFF",
       wheelCenterBg: "#FFFFFF",
-      wheelCenterIcon: "#FF5A36",
-      border: "3px solid #111111",
-      boxShadow: "8px 8px 0px rgba(17,17,17,1)",
+      wheelCenterIcon: "#111111",
+      border: "2px solid #1F2937",
+      boxShadow: "8px 8px 0px rgba(31,41,55,1)",
       badgeBg: "#FFE082",
       badgeText: "#111111",
       tabActiveBg: "#111111",
       tabActiveText: "#FFFFFF",
       tabBg: "rgba(17,17,17,0.1)",
       tabText: "rgba(17,17,17,0.6)",
-      pageBg: "#FFFDE7",
+      pageBg: "#FFF7ED",
       listItemBg: "#FFFFFF",
-      listItemBorder: "#111111",
-      freshResultBg: "#FF3B30",
-      freshResultText: "#FFFFFF"
+      listItemBorder: "#1F2937",
+      freshResultBg: "#FFE4DE",
+      freshResultText: "#9A3412",
+      freshResultBorder: "#FDB5A7"
     },
     dark: {
-      palette: ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#06B6D4", "#3B82F6", "#8B5CF6", "#EC4899"],
-      textColors: ["#FFFFFF", "#000000", "#000000", "#000000", "#000000", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
+      palette: ["#FF4D6D", "#00D4FF", "#FF9F1C", "#A855F7", "#2EE86F", "#FF2BD6", "#F9F871", "#4D7CFE"],
+      textColors: ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
       panelBg: "#111317",
       textColor: "#FAFAFA",
       buttonBg: "#39FF14",
       buttonText: "#000000",
       wheelCenterBg: "#111317",
-      wheelCenterIcon: "#39FF14",
+      wheelCenterIcon: "#111111",
       border: "1px solid #2C2E36",
       boxShadow: "0 20px 40px rgba(0,0,0,0.8)",
       badgeBg: "rgba(57,255,20,0.1)",
@@ -82,8 +88,9 @@
       pageBg: "#09090b",
       listItemBg: "#18181b",
       listItemBorder: "#27272a",
-      freshResultBg: "rgba(57,255,20,0.15)",
-      freshResultText: "#39FF14"
+      freshResultBg: "rgba(57,255,20,0.16)",
+      freshResultText: "#B7FF8A",
+      freshResultBorder: "rgba(57,255,20,0.46)"
     },
     elegant: {
       palette: ["#78716c", "#b45309", "#854d0e", "#4d7c0f", "#0f766e", "#1d4ed8", "#6d28d9", "#be123c"],
@@ -105,19 +112,20 @@
       pageBg: "#FDFBF7",
       listItemBg: "#FFFFFF",
       listItemBorder: "#EAE6DF",
-      freshResultBg: "rgba(197,160,89,0.14)",
-      freshResultText: "#C5A059"
+      freshResultBg: "#F6EDDC",
+      freshResultText: "#76551E",
+      freshResultBorder: "#D8C7A7"
     }
   };
 
-  const wheels: DemoWheel[] = [
+  const defaultWheels: DemoWheel[] = [
     {
       id: "tiny-side-quest",
       name: "Tiny Side Quest",
       emoji: "🗺️",
-      toneLabel: "Unhinged",
+      toneLabel: "Chaotic",
       toneEmoji: "🤪",
-      prompt: "Unhinged tone from Weekend Adventure.",
+      prompt: "Chaotic tone from Weekend Adventure.",
       options: [
         { label: "Gas station snack prophecy", weight: 8 },
         { label: "Ferally confident thrift sprint", weight: 6 },
@@ -177,15 +185,11 @@
     },
   ];
 
-  const heroVariants = [
-    { wheelIndex: 0, theme: "playful" },
-    { wheelIndex: 0, theme: "playful" },
-    { wheelIndex: 3, theme: "dark" },
-    { wheelIndex: 3, theme: "dark" },
-    { wheelIndex: 2, theme: "minimal" },
-    { wheelIndex: 1, theme: "minimal" },
-  ];
-  const initialVariant = heroVariants[Math.floor(Math.random() * heroVariants.length)];
+  const wheels: DemoWheel[] = copy
+    ? [{ id: "localized-dinner-rescue", ...copy.wheel }]
+    : defaultWheels;
+  const initialVariant = { wheelIndex: copy ? 0 : 1, theme: "minimal" } as const;
+  const initialResult = copy?.result ?? "Spin for a decision";
   activeTheme.set(initialVariant.theme);
 
   let currentScreen: "list" | "detail" = "detail";
@@ -200,40 +204,16 @@
 
   let detailRotation = 0;
   let detailSpinning = false;
-  let detailResult = "Spin for a decision";
+  let detailResult = initialResult;
   let detailAnimationFrame: number | null = null;
   let detailRotationVal = 0;
   let detailStartAngleForCurrentSpin = 0;
   let detailSpinTarget: any = null;
   let detailSpinStartTime = 0;
 
-  const WHEEL_CENTER = 220;
-  const WHEEL_RADIUS = WHEEL_CENTER - 4;
-
   function normalizeAngle(angle: number): number {
     const normalized = angle % 360;
     return normalized < 0 ? normalized + 360 : normalized;
-  }
-
-  function polarToCartesian(center: number, radius: number, angle: number) {
-    const rad = ((angle - 90) * Math.PI) / 180;
-    return {
-      x: center + radius * Math.cos(rad),
-      y: center + radius * Math.sin(rad),
-    };
-  }
-
-  function describeSector(center: number, radius: number, startAngle: number, endAngle: number) {
-    const start = polarToCartesian(center, radius, startAngle);
-    const end = polarToCartesian(center, radius, endAngle);
-    const largeArcFlag = endAngle - startAngle > 180 ? "1" : "0";
-
-    return [
-      `M ${center} ${center}`,
-      `L ${start.x} ${start.y}`,
-      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`,
-      "Z",
-    ].join(" ");
   }
 
   function getProgress(elapsed: number, target: any) {
@@ -256,29 +236,10 @@
     textColor: currentTheme.textColors[index % currentTheme.textColors.length],
   }));
 
-  $: sectors = (() => {
-    const totalWeight = options.reduce((sum, option) => sum + (option.weight || 1), 0);
-    let startAngle = 0;
-    return options.map((option, sectorIndex) => {
-      const sectorAngle = ((option.weight || 1) / totalWeight) * 360;
-      const endAngle = startAngle + sectorAngle;
-      const textFit = fitTextIntoArcPath(option.text, sectorAngle, WHEEL_RADIUS * 0.35, WHEEL_RADIUS * 0.85, 440);
-      const textInnerLimit = WHEEL_RADIUS * 0.35;
-      const textOuterLimit = WHEEL_RADIUS * 0.85;
-      const lineRadii = calculateLineRadii(textFit.lines, textInnerLimit, textOuterLimit, textFit.fontSize);
-      const sector = {
-        clipPathId: `web-sector-clip-${activeWheelIndex}-${sectorIndex}`,
-        option,
-        path: describeSector(WHEEL_CENTER, WHEEL_RADIUS, startAngle, endAngle),
-        startAngle,
-        endAngle,
-        textFit,
-        lineRadii,
-      };
-      startAngle = endAngle;
-      return sector;
-    });
-  })();
+  $: sectors = layoutWheelSectors(
+    options,
+    `web-sector-${activeWheelIndex}`,
+  );
 
   function goHome() {
     if (detailSpinning) return;
@@ -298,7 +259,7 @@
   function goToDetail(index: number) {
     Object.keys(quickSpinning).forEach((wheelId) => cancelQuickSpin(wheelId));
     activeWheelIndex = index;
-    detailResult = listResults[wheels[index].id] || "Spin for a decision";
+    detailResult = listResults[wheels[index].id] || initialResult;
     detailRotationVal = listAngles[wheels[index].id] ?? 0;
     detailRotation = listRotations[wheels[index].id] ?? detailRotationVal;
     currentScreen = "detail";
@@ -317,14 +278,21 @@
   function handleQuickSpin(index: number, event: Event) {
     event.stopPropagation();
     const wheel = wheels[index];
-    if (quickSpinning[wheel.id]) return;
+    const wasSpinning = quickSpinning[wheel.id] === true;
+    if (listAnimationFrames[wheel.id]) {
+      cancelAnimationFrame(listAnimationFrames[wheel.id]);
+    }
 
     quickSpinning[wheel.id] = true;
     quickSpinning = { ...quickSpinning };
     
     const wheelOptions = spinOptionsForWheel(wheel);
-    const startAngle = listAngles[wheel.id] ?? 0;
-    const target = generatePhysicsSpinTarget(startAngle, "Medium", "Medium");
+    const startAngle = listRotations[wheel.id] ?? listAngles[wheel.id] ?? 0;
+    const target = generatePhysicsSpinTarget(
+      startAngle,
+      getTapSpinSpeed(wasSpinning, "Medium"),
+      "Medium",
+    );
 
     let startTime = performance.now();
 
@@ -336,8 +304,10 @@
 
       listRotations[wheel.id] = currentRotation;
       listRotations = { ...listRotations };
-      listResults[wheel.id] = calculateResultFromAngle(currentAngle, wheelOptions);
-      listResults = { ...listResults };
+      const nextResult = calculateResultFromAngle(currentAngle, wheelOptions);
+      if (listResults[wheel.id] !== nextResult) {
+        listResults = { ...listResults, [wheel.id]: nextResult };
+      }
 
       if (elapsed < target.totalDurationMs) {
          listAnimationFrames[wheel.id] = requestAnimationFrame(tick);
@@ -351,8 +321,9 @@
       listAngles = { ...listAngles };
       listRotations[wheel.id] = target.finalTarget;
       listRotations = { ...listRotations };
-      listResults[wheel.id] = finalResult;
-      listResults = { ...listResults };
+      if (listResults[wheel.id] !== finalResult) {
+        listResults = { ...listResults, [wheel.id]: finalResult };
+      }
       listTimestamps[wheel.id] = Date.now();
       listTimestamps = { ...listTimestamps };
       
@@ -365,27 +336,23 @@
 
   function detailSpin() {
     const now = performance.now();
+    const wasSpinning = detailSpinning && detailSpinTarget !== null;
     let currentStart = detailRotationVal;
 
-    if (detailSpinning && detailSpinTarget) {
+    if (wasSpinning && detailSpinTarget) {
       const elapsed = now - detailSpinStartTime;
       const progress = getProgress(elapsed, detailSpinTarget);
       currentStart = detailStartAngleForCurrentSpin + (detailSpinTarget.finalTarget - detailStartAngleForCurrentSpin) * progress;
     }
 
+    detailRotationVal = normalizeAngle(currentStart);
+    detailRotation = currentStart;
     detailStartAngleForCurrentSpin = currentStart;
-    detailSpinTarget = generatePhysicsSpinTarget(currentStart, "Medium", "Medium");
-    
-    if (detailSpinning) {
-       detailSpinTarget.finalTarget += 360 * 3; 
-       detailSpinTarget.totalDurationMs += 1000;
-       detailSpinTarget.physicsDurationMs += 1000;
-       
-       const btn = document.querySelector('.spin-btn');
-       if(btn) {
-           btn.animate([{transform: 'scale(0.9)'}, {transform: 'scale(1)'}], {duration: 200});
-       }
-    }
+    detailSpinTarget = generatePhysicsSpinTarget(
+      currentStart,
+      getTapSpinSpeed(wasSpinning, "Medium"),
+      "Medium",
+    );
 
     detailSpinStartTime = now;
     detailSpinning = true;
@@ -431,7 +398,6 @@
   }
 
   function spinFromInitialResult() {
-    if (detailResult !== "Spin for a decision" || detailSpinning) return;
     detailSpin();
   }
 
@@ -452,7 +418,7 @@
   --theme-btn-bg: {currentTheme.buttonBg};
   --theme-btn-text: {currentTheme.buttonText};
   --theme-wheel-hub-bg: {$activeTheme === 'dark' ? '#FFFFFF' : currentTheme.wheelCenterBg};
-  --theme-wheel-hub-border: {$activeTheme === 'playful' ? '#111111' : $activeTheme === 'elegant' ? '#D8C7A7' : '#E5E7EB'};
+  --theme-wheel-hub-border: {$activeTheme === 'playful' ? '#1F2937' : $activeTheme === 'elegant' ? '#D8C7A7' : '#E5E7EB'};
   --theme-wheel-hub-icon: {currentTheme.wheelCenterIcon};
   --theme-badge-bg: {currentTheme.badgeBg};
   --theme-badge-text: {currentTheme.badgeText};
@@ -464,11 +430,12 @@
   --theme-list-item-border: {currentTheme.listItemBorder};
   --theme-fresh-result-bg: {currentTheme.freshResultBg};
   --theme-fresh-result-text: {currentTheme.freshResultText};
+  --theme-fresh-result-border: {currentTheme.freshResultBorder};
 ">
   {#if currentScreen === "list"}
     <div class="glass-panel list-panel" data-theme={$activeTheme}>
       <div class="list-header">
-        <h2>My Wheels</h2>
+        <h2>{copy?.myWheels ?? "My Wheels"}</h2>
       </div>
       <div class="wheel-list">
         {#each wheels as wheel, index}
@@ -478,7 +445,7 @@
                 class="emoji-btn {quickSpinning[wheel.id] ? 'spinning' : ''}" 
                 on:click={(e) => handleQuickSpin(index, e)}
                 style={$activeTheme === 'playful' ? `transform: rotate(${listRotations[wheel.id] || 0}deg);` : ''}
-                aria-label={`Quick spin ${wheel.name}`}
+                aria-label={quickSpinning[wheel.id] ? `${copy?.keepSpinning ?? "Keep spinning"} ${wheel.name}` : `${copy?.quickSpin ?? "Quick spin"} ${wheel.name}`}
               >
                 <span class="emoji-text">{wheel.emoji}</span>
               </button>
@@ -509,7 +476,7 @@
     <div class="glass-panel detail-panel" data-theme={$activeTheme}>
       <div class="detail-header-row">
         <div class="header-action-left">
-          <button class="back-btn" on:click={goHome} disabled={detailSpinning} aria-label="Go back to list">
+          <button class="back-btn" on:click={goHome} disabled={detailSpinning} aria-label={copy?.backToList ?? "Go back to list"}>
             <Home size={20} color={currentTheme.textColor} />
           </button>
         </div>
@@ -519,10 +486,11 @@
             <button
               class="tab-btn"
               class:active={$activeTheme === themeKey}
+              aria-pressed={$activeTheme === themeKey}
               on:click={() => $activeTheme = themeKey}
               disabled={detailSpinning}
             >
-              {themeKey.charAt(0).toUpperCase() + themeKey.slice(1)}
+              {copy?.themeLabels[themeKey as keyof DemoCopy["themeLabels"]] ?? themeKey.charAt(0).toUpperCase() + themeKey.slice(1)}
             </button>
           {/each}
         </div>
@@ -537,13 +505,15 @@
         </div>
         <div class="tone-chip">
           <span>{activeWheel.toneEmoji}</span>
-          <strong>{activeWheel.toneLabel} AI tone</strong>
+          <strong>{activeWheel.toneLabel} {copy?.tone ?? "AI tone"}</strong>
         </div>
       </div>
       
       <div class="wheel-container">
         <svg
           class="main-svg"
+          role="img"
+          aria-label={`${activeWheel.name} decision wheel`}
           viewBox="0 0 440 440"
           style={`transform: rotate(${detailRotation}deg)`}
         >
@@ -553,12 +523,12 @@
                 <path d={sector.path} />
               </clipPath>
             {/each}
-            {#each sectors as sector, sectorIndex}
-              {#each sector.lineRadii as lineRadius, lineIndex}
+            {#each sectors as sector}
+              {#each sector.textPaths as textPath}
                 <path
-                  d={createArcPath(220, 220, lineRadius, sector.startAngle + 1 - 90, sector.endAngle - 1 - 90)}
+                  d={textPath.path}
                   fill="none"
-                  id={`textpath-${activeWheelIndex}-${sectorIndex}-${lineIndex}`}
+                  id={textPath.id}
                 />
               {/each}
             {/each}
@@ -566,24 +536,22 @@
 
           <circle cx="220" cy="220" r="218" fill="rgba(0,0,0,0.03)" />
           
-          {#each sectors as sector, sectorIndex}
+          {#each sectors as sector}
             <g>
               <path d={sector.path} fill={sector.option.backgroundColor} stroke="rgba(0,0,0,0.1)" stroke-width="1.5" style="transform: scale(0.995); transform-origin: 220px 220px;" />
               <g clip-path={`url(#${sector.clipPathId})`}>
-                {#each sector.textFit.lines as line, lineIndex}
+                {#each sector.textPaths as textPath}
                   <text
                     fill={sector.option.textColor}
-                    font-size={sector.textFit.fontSize * 1.05}
-                    font-family="Outfit, Inter, system-ui, sans-serif"
-                    font-weight="800"
-                    letter-spacing="-0.02em"
+                    font-size={sector.fontSize}
+                    font-weight="700"
                     text-anchor="middle"
                   >
                     <textPath
-                      href={`#textpath-${activeWheelIndex}-${sectorIndex}-${lineIndex}`}
+                      href={`#${textPath.id}`}
                       startOffset="50%"
                     >
-                      {line}
+                      {textPath.text}
                     </textPath>
                   </text>
                 {/each}
@@ -592,9 +560,9 @@
           {/each}
         </svg>
 
-        <button class="spin-btn" aria-label={detailSpinning ? "Keep spinning" : "Spin wheel"} type="button" on:click={detailSpin}>
+        <button class="spin-btn" aria-label={detailSpinning ? copy?.keepSpinning ?? "Keep spinning" : copy?.spinWheel ?? "Spin wheel"} type="button" on:click={detailSpin}>
           <div class="inner-hub">
-            <Dices size={24} color="var(--theme-wheel-hub-icon)" />
+            <HandPointerIcon size={36} style="height:calc(50% + 1px);width:calc(50% + 1px)" />
           </div>
         </button>
 
@@ -607,14 +575,17 @@
 
       <div class="wheel-footer">
         <button
-          class="result-badge"
+          class="result-badge clickable"
+          class:has-result={detailResult !== initialResult}
           class:pulsing={detailSpinning}
-          class:clickable={detailResult === "Spin for a decision" && !detailSpinning}
-          disabled={detailResult !== "Spin for a decision" || detailSpinning}
           type="button"
+          aria-label={detailSpinning ? copy?.keepSpinning ?? "Keep spinning" : copy?.spinAgain ?? "Spin again"}
           on:click={spinFromInitialResult}
         >
           <span class="result-text">{detailResult}</span>
+          <span class="sr-only" aria-live="polite" aria-atomic="true">
+            {detailSpinning ? copy?.wheelSpinning ?? "Wheel spinning" : `${copy?.result ?? "Result"}: ${detailResult}`}
+          </span>
         </button>
         <p class="wheel-prompt">
           <Sparkles size={14} color="var(--theme-wheel-hub-icon)" class="prompt-icon" /> {activeWheel.prompt}
@@ -645,7 +616,7 @@
     gap: 0.85rem;
     max-width: 100%;
     width: min(100%, 34rem);
-    height: 40rem;
+    min-height: 40rem;
     box-sizing: border-box;
     overflow: hidden;
     transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
@@ -864,8 +835,9 @@
     background: none;
     border: none;
     cursor: pointer;
+    height: 44px;
     padding: 6px;
-    margin-left: -6px;
+    width: 44px;
     border-radius: 50%;
     transition: background 0.2s;
   }
@@ -963,6 +935,16 @@
     cursor: not-allowed;
   }
 
+  .back-btn:focus-visible,
+  .tab-btn:focus-visible,
+  .spin-btn:focus-visible,
+  .result-badge:focus-visible,
+  .emoji-btn:focus-visible,
+  .wheel-list-item:focus-visible {
+    outline: 3px solid var(--theme-btn-bg);
+    outline-offset: 3px;
+  }
+
   .wheel-container {
     position: relative;
     width: 100%;
@@ -982,24 +964,28 @@
 
   .spin-btn {
     position: absolute;
-    width: 18%;
-    height: 18%;
+    width: clamp(60px, calc(26% + 16px), 88px);
+    height: clamp(60px, calc(26% + 16px), 88px);
     border-radius: 50%;
-    background: var(--theme-btn-bg);
+    background: transparent;
     border: none;
-    padding: 2px;
+    box-sizing: border-box;
+    padding: 8px;
     cursor: pointer;
     z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .spin-btn:hover {
+  .spin-btn:not(:disabled):hover {
     transform: scale(1.05);
   }
 
-  .spin-btn:active {
+  .spin-btn:not(:disabled):active {
     transform: scale(0.95);
+  }
+
+  .spin-btn:disabled {
+    cursor: default;
   }
 
   .inner-hub {
@@ -1011,7 +997,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 3.84px rgba(0,0,0,0.25);
     transition: background 0.2s ease;
   }
 
@@ -1038,7 +1024,7 @@
 
   .result-badge {
     background: var(--theme-badge-bg);
-    border: 0;
+    border: var(--theme-border);
     padding: 0.55rem 0.9rem;
     border-radius: 12px;
     min-height: 2.7rem;
@@ -1067,6 +1053,15 @@
   .result-badge.pulsing {
     animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     filter: brightness(1.1);
+  }
+
+  .result-badge.has-result {
+    background: var(--theme-fresh-result-bg);
+    border-color: var(--theme-fresh-result-border);
+  }
+
+  .result-badge.has-result .result-text {
+    color: var(--theme-fresh-result-text);
   }
 
   @keyframes pulse {
@@ -1106,7 +1101,7 @@
       padding: 1rem;
       width: 100%;
       border-radius: 20px;
-      height: 40rem;
+      min-height: 40rem;
     }
 
     .tabs {
@@ -1119,6 +1114,11 @@
       font-size: 0.82rem;
       min-width: 0;
       padding: 0.6rem 0.45rem;
+    }
+
+    :global(html[lang="ru"]) .tab-btn {
+      font-size: 0.72rem;
+      padding-inline: 0.1rem;
     }
 
     .wheel-container {
@@ -1137,6 +1137,19 @@
 
     .result-text {
       font-size: 1.1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glass-panel,
+    .tab-btn,
+    .wheel-list-item,
+    .result-text {
+      transition: none;
+    }
+
+    .result-badge.pulsing {
+      animation: none;
     }
   }
 </style>

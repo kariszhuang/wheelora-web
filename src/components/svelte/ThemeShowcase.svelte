@@ -1,522 +1,67 @@
 <script lang="ts">
-  import { activeTheme } from "../../store/theme";
+  import type { ThemeShowcaseCopy } from "../../i18n/themeShowcase.generated";
 
-  const THEME_ORDER = [
-      "minimal",
-      "dark",
-      "playful",
-      "elegant",
-  ];
+  export let copy: ThemeShowcaseCopy | undefined = undefined;
 
-  const THEME_DETAILS = {
-    minimal: {
-        label: "Minimal",
-        tagline: "Quiet, crisp, and modern",
-        badge: "Clean",
-        isPro: false,
-        surface: "#FFFFFF",
-        surfaceMuted: "#F3F4F6",
-        borderColor: "#E5E7EB",
-        textColor: "#111827",
-        mutedTextColor: "#6B7280",
-        accent: "#4F46E5",
-        accentStrong: "#111827",
-        accentSoft: "#EEF2FF",
-        accentContrast: "#FFFFFF",
-        glowColor: "rgba(79,70,229,0.12)",
-        heroOrb: "rgba(79,70,229,0.12)",
-    },
-    dark: {
-        label: "Dark",
-        tagline: "Deep contrast with neon energy",
-        badge: "Focus",
-        isPro: false,
-        surface: "#111317",
-        surfaceMuted: "#23242B",
-        borderColor: "#2C2E36",
-        textColor: "#FAFAFA",
-        mutedTextColor: "#A1A1AA",
-        accent: "#39FF14",
-        accentSoft: "rgba(57,255,20,0.12)",
-        accentContrast: "#000000",
-        glowColor: "rgba(57,255,20,0.22)",
-        heroOrb: "rgba(57,255,20,0.16)",
-    },
-    playful: {
-        label: "Playful",
-        tagline: "Punchy, bright, and delightfully loud",
-        badge: "Pro",
-        isPro: true,
-        surface: "#FFFDF4",
-        surfaceMuted: "#FFE082",
-        borderColor: "#111111",
-        textColor: "#111111",
-        mutedTextColor: "#504A3B",
-        accent: "#FF5A36",
-        accentSoft: "#FFF1A8",
-        accentContrast: "#FFFFFF",
-        glowColor: "rgba(255,90,54,0.18)",
-        heroOrb: "rgba(255,90,54,0.22)",
-    },
-    elegant: {
-        label: "Elegant",
-        tagline: "Warm luxury with refined calm",
-        badge: "Pro",
-        isPro: true,
-        surface: "#FFFDF8",
-        surfaceMuted: "#F3ECE1",
-        borderColor: "#D8C7A7",
-        textColor: "#231F19",
-        mutedTextColor: "#7C6D58",
-        accent: "#C5A059",
-        accentSoft: "rgba(197,160,89,0.14)",
-        accentContrast: "#FFFFFF",
-        glowColor: "rgba(197,160,89,0.16)",
-        heroOrb: "rgba(197,160,89,0.16)",
-    },
-  } as any;
+  const themes = [
+    { key: "minimal", label: "Minimal", tagline: "Light interface with clear contrast", surface: "#FFFFFF", muted: "#F3F4F6", border: "#E5E7EB", text: "#111827", subtext: "#6B7280", accent: "#4F46E5", strong: "#111827", glow: "rgba(79,70,229,0.12)" },
+    { key: "dark", label: "Dark", tagline: "Deep contrast with neon energy", surface: "#111317", muted: "#23242B", border: "#2C2E36", text: "#FAFAFA", subtext: "#A1A1AA", accent: "#39FF14", strong: "#8B5CF6", glow: "rgba(57,255,20,0.22)" },
+    { key: "playful", label: "Playful", tagline: "Bright, high-energy, and easy to scan", surface: "#FFFFFF", muted: "#FFE6CC", border: "#1F2937", text: "#111827", subtext: "#4B5563", accent: "#FF5A36", strong: "#0F172A", glow: "rgba(255,90,54,0.18)" },
+    { key: "elegant", label: "Elegant", tagline: "Warm luxury with refined calm", surface: "#FFFDF8", muted: "#F3ECE1", border: "#D7C4A0", text: "#1F2528", subtext: "#6F6254", accent: "#8A6F35", strong: "#2F5D62", glow: "rgba(138,111,53,0.16)" },
+    { key: "aurora", label: "Aurora", tagline: "Luminous color on a midnight canvas", surface: "#10172F", muted: "#202B52", border: "#344574", text: "#F7F7FF", subtext: "#AAB6D6", accent: "#7BE7FF", strong: "#C697FF", glow: "rgba(123,231,255,0.28)" },
+    { key: "editorial", label: "Editorial", tagline: "Bold type, warm paper, decisive contrast", surface: "#FCF8F0", muted: "#E8DFD0", border: "#1D2733", text: "#16202A", subtext: "#675F55", accent: "#C94332", strong: "#244E8A", glow: "rgba(22,32,42,0.12)" },
+    { key: "botanical", label: "Botanical", tagline: "Calm greens, sunlit surfaces, organic warmth", surface: "#FAFCF5", muted: "#E2EAD7", border: "#AFC29C", text: "#1E3428", subtext: "#5E715F", accent: "#2F7655", strong: "#984A31", glow: "rgba(47,118,85,0.17)" },
+    { key: "solstice", label: "Solstice", tagline: "Golden light with crisp cobalt confidence", surface: "#FFFCF0", muted: "#F8E7A6", border: "#D8A91F", text: "#172852", subtext: "#625D4A", accent: "#F2B705", strong: "#2457C5", glow: "rgba(242,183,5,0.22)" },
+    { key: "tidal", label: "Tidal", tagline: "Sea-glass calm with a warm coral pulse", surface: "#F7FCFA", muted: "#D2E9E3", border: "#9BC4BA", text: "#123C3A", subtext: "#52706B", accent: "#0E746E", strong: "#C95742", glow: "rgba(14,116,110,0.17)" },
+    { key: "blueprint", label: "Blueprint", tagline: "Measured structure with technical clarity", surface: "#F7FAFE", muted: "#DCE8F7", border: "#2B5C9A", text: "#143152", subtext: "#536A82", accent: "#2463A8", strong: "#C8472E", glow: "rgba(36,99,168,0.16)" },
+  ] as const;
 
-  $: selectedTheme = $activeTheme;
+  let selectedTheme = "minimal";
 </script>
 
-<div class="theme-grid">
-  {#each THEME_ORDER as themeKey}
-    {@const tokens = THEME_DETAILS[themeKey]}
-    {@const isSelected = selectedTheme === themeKey}
-    
-    <button 
-      class="theme-card {isSelected ? 'selected' : ''} {themeKey === 'playful' ? 'theme-playful' : ''} {themeKey === 'elegant' ? 'theme-elegant' : ''}"
-      style="
-        --card-bg: {tokens.surface};
-        --card-border: {isSelected ? tokens.accent : tokens.borderColor};
-        --card-shadow: {tokens.glowColor};
-        --text-color: {tokens.textColor};
-        --muted-text: {tokens.mutedTextColor};
-      "
-      on:click={() => $activeTheme = themeKey}
+<div class="theme-grid" aria-label={copy?.label ?? "Wheelora themes"}>
+  {#each themes as theme}
+    {@const label = copy?.names[theme.key] ?? theme.label}
+    {@const tagline = copy?.taglines[theme.key] ?? theme.tagline}
+    <button
+      type="button"
+      class:selected={selectedTheme === theme.key}
+      aria-pressed={selectedTheme === theme.key}
+      aria-label={`${label}: ${tagline}`}
+      on:click={() => selectedTheme = theme.key}
+      style={`--surface:${theme.surface};--muted:${theme.muted};--border:${theme.border};--text:${theme.text};--subtext:${theme.subtext};--accent:${theme.accent};--strong:${theme.strong};--glow:${theme.glow}`}
     >
-      <div class="theme-card-top">
-        <div class="theme-card-info">
-          <div class="theme-card-title-row">
-            <span class="theme-title">{tokens.label}</span>
-            {#if tokens.isPro}
-              <span class="theme-badge" style="background-color: {tokens.accentSoft}; border-color: {tokens.borderColor}; color: {tokens.textColor};">
-                {tokens.badge}
-              </span>
-            {/if}
-          </div>
-          <span class="theme-tagline">{tokens.tagline}</span>
-        </div>
-
-        <div class="selection-mark" style="border-color: {isSelected ? tokens.accent : tokens.borderColor}; background-color: {isSelected ? tokens.accent : 'transparent'};">
-          {#if isSelected}
-             <svg viewBox="0 0 24 24" width="16" height="16" stroke="{tokens.accentContrast}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          {/if}
-        </div>
-      </div>
-
-      <div class="preview-stage-wrapper">
-        {#if themeKey === 'minimal'}
-            <div class="preview-stage" style="background-color: #F9FAFB;">
-                <div class="preview-minimal-ring" style="border-color: {tokens.accentSoft};"></div>
-                <div class="preview-minimal-layout">
-                    <div class="preview-minimal-word" style="color: {tokens.textColor};">calm</div>
-                    <div class="preview-minimal-track" style="background-color: {tokens.surfaceMuted};">
-                        <div class="preview-minimal-fill" style="background-color: {tokens.accentStrong};"></div>
-                    </div>
-                    <div class="preview-minimal-dots">
-                        <div class="preview-minimal-dot" style="background-color: {tokens.accentStrong};"></div>
-                        <div class="preview-minimal-dot" style="background-color: #D1D5DB;"></div>
-                        <div class="preview-minimal-dot" style="background-color: #E5E7EB;"></div>
-                    </div>
-                </div>
-            </div>
-        {:else if themeKey === 'dark'}
-            <div class="preview-stage" style="background-color: #0A0A0C;">
-                <div class="preview-dark-glow" style="background-color: {tokens.glowColor};"></div>
-                <div class="preview-dark-panel" style="border-color: {tokens.borderColor};">
-                    <div class="preview-dark-header">
-                        <div class="preview-dark-badge" style="background-color: rgba(57,255,20,0.16);"></div>
-                        <div class="preview-dark-badge" style="background-color: rgba(139,92,246,0.24); width: 38px;"></div>
-                    </div>
-                    <div class="preview-dark-wheel" style="border-color: {tokens.accent};">
-                        <div class="preview-dark-wheel-core" style="background-color: {tokens.accent};"></div>
-                    </div>
-                </div>
-            </div>
-        {:else if themeKey === 'playful'}
-            <div class="preview-stage" style="background-color: #FFF5C2;">
-                <div class="preview-sticker" style="background-color: #39FF14; transform: rotate(-10deg);">
-                    <div class="preview-sticker-text">wow</div>
-                </div>
-                <div class="preview-playful-card" style="border-color: {tokens.borderColor};">
-                    <div class="preview-playful-pill" style="background-color: {tokens.accent};"></div>
-                    <div class="preview-playful-row">
-                        <div class="preview-playful-wheel" style="border-color: {tokens.borderColor};"></div>
-                        <div class="preview-playful-words">
-                            <div class="preview-playful-line" style="background-color: #111111; width: 84%;"></div>
-                            <div class="preview-playful-line" style="background-color: #111111; width: 58%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {:else if themeKey === 'elegant'}
-            <div class="preview-stage" style="background-color: #F7F0E4;">
-                <div class="preview-elegant-glow" style="border-color: {tokens.borderColor};"></div>
-                <div class="preview-elegant-card" style="border-color: {tokens.borderColor};">
-                    <div class="preview-elegant-title" style="color: {tokens.textColor};">atelier</div>
-                    <div class="preview-elegant-wheel" style="border-color: {tokens.accent};">
-                        <div class="preview-elegant-wheel-core" style="background-color: {tokens.accent};"></div>
-                    </div>
-                    <div class="preview-elegant-rule" style="background-color: {tokens.borderColor};"></div>
-                </div>
-            </div>
-        {/if}
-      </div>
-
-      <div class="theme-card-footer">
-        <span class="theme-card-footnote">{isSelected ? "Selected" : "Available"}</span>
-        {#if isSelected}
-           <svg viewBox="0 0 24 24" width="16" height="16" stroke="{tokens.accent}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="16 10 11 15 8 12"></polyline></svg>
-        {:else}
-           <div style="width: 14px; height: 14px; border-radius: 7px; border: 2px solid {tokens.accent}; opacity: 0.5;"></div>
-        {/if}
-      </div>
+      <span class="copy"><strong>{label}</strong><small>{tagline}</small></span>
+      <span class="preview" aria-hidden="true">
+        <span class="wheel"><i></i></span>
+        <span class="lines"><i></i><i></i><i></i></span>
+      </span>
+      <span class="status">{selectedTheme === theme.key ? copy?.selected ?? "Selected" : copy?.preview ?? "Choose theme"}<i aria-hidden="true"></i></span>
     </button>
   {/each}
 </div>
 
 <style>
-  .theme-grid {
-    display: grid;
-    gap: 1.25rem;
-    width: 100%;
-    align-items: stretch;
-    grid-auto-rows: 1fr;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 1024px) {
-    .theme-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  .theme-card {
-    background-color: var(--card-bg);
-    border: 1.5px solid var(--card-border);
-    border-radius: 24px;
-    padding: 14px;
-    min-height: 196px;
-    height: 100%;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    display: flex;
-    flex-direction: column;
-    outline: none;
-  }
-
-  .theme-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.06);
-  }
-
-  .theme-card.selected {
-    box-shadow: 0 12px 24px var(--card-shadow);
-    transform: translateY(-2px);
-  }
-
-  .theme-playful {
-    transform: rotate(-0.6deg);
-  }
-  
-  .theme-playful:hover, .theme-playful.selected {
-    transform: rotate(-0.6deg) translateY(-2px);
-  }
-
-  .theme-elegant {
-    border-radius: 20px;
-  }
-
-  .theme-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  
-  .theme-card-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .theme-card-title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .theme-title {
-    font-size: 1.125rem;
-    font-weight: 800;
-    color: var(--text-color);
-    letter-spacing: -0.02em;
-    font-family: inherit;
-  }
-
-  .theme-badge {
-    border-radius: 999px;
-    padding: 3px 8px;
-    border: 1px solid;
-    font-size: 0.65rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .theme-tagline {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    color: var(--muted-text);
-    display: block;
-    font-weight: 500;
-    min-height: 2.4em;
-  }
-
-  .selection-mark {
-    width: 28px;
-    height: 28px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
-  .preview-stage-wrapper {
-    margin-bottom: 16px;
-    flex: 1 1 auto;
-    display: flex;
-  }
-
-  .preview-stage {
-    align-self: stretch;
-    height: 92px;
-    width: 100%;
-    border-radius: 18px;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Preview Minimal */
-  .preview-minimal-ring {
-    position: absolute;
-    width: 124px;
-    height: 124px;
-    border-radius: 62px;
-    border: 16px solid;
-    top: -52px;
-    right: -22px;
-  }
-  .preview-minimal-layout {
-    width: 82%;
-    z-index: 1;
-  }
-  .preview-minimal-word {
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: -1.4px;
-    margin-bottom: 10px;
-    line-height: 1;
-  }
-  .preview-minimal-track {
-    height: 8px;
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 10px;
-  }
-  .preview-minimal-fill {
-    height: 100%;
-    border-radius: 999px;
-  }
-  .preview-minimal-dots {
-    display: flex;
-    gap: 6px;
-  }
-  .preview-minimal-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-  }
-
-  /* Preview Dark */
-  .preview-dark-glow {
-    position: absolute;
-    width: 124px;
-    height: 124px;
-    border-radius: 62px;
-    top: -26px;
-    right: -10px;
-    filter: blur(12px);
-  }
-  .preview-dark-panel {
-    width: 84%;
-    border-radius: 18px;
-    background-color: #101114;
-    border: 1px solid;
-    padding: 12px;
-    z-index: 1;
-  }
-  .preview-dark-header {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .preview-dark-badge {
-    height: 8px;
-    border-radius: 999px;
-    width: 20px;
-  }
-  .preview-dark-wheel {
-    width: 42px;
-    height: 42px;
-    border-radius: 21px;
-    border: 3px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .preview-dark-wheel-core {
-    width: 12px;
-    height: 12px;
-    border-radius: 999px;
-  }
-
-  /* Preview Playful */
-  .preview-sticker {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 2px solid #111111;
-    z-index: 2;
-  }
-  .preview-sticker-text {
-    font-size: 11px;
-    font-weight: 900;
-    color: #111111;
-    text-transform: uppercase;
-    line-height: 1;
-  }
-  .preview-playful-card {
-    width: 82%;
-    background-color: #FFFFFF;
-    border-radius: 14px;
-    border: 3px solid;
-    padding: 12px;
-    box-shadow: 4px 4px 0 #111111;
-  }
-  .preview-playful-pill {
-    width: 58px;
-    height: 10px;
-    border-radius: 999px;
-    margin-bottom: 10px;
-  }
-  .preview-playful-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .preview-playful-wheel {
-    width: 34px;
-    height: 34px;
-    border-radius: 17px;
-    border: 4px solid;
-    background-color: #FFE082;
-  }
-  .preview-playful-words {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-  .preview-playful-line {
-    height: 7px;
-    border-radius: 999px;
-  }
-
-  /* Preview Elegant */
-  .preview-elegant-glow {
-    position: absolute;
-    width: 126px;
-    height: 126px;
-    border-radius: 63px;
-    border: 1px solid;
-    top: -36px;
-    right: -20px;
-    opacity: 0.2;
-  }
-  .preview-elegant-card {
-    width: 84%;
-    border-radius: 18px;
-    border: 1px solid;
-    background-color: rgba(255,255,255,0.85);
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    backdrop-filter: blur(4px);
-    z-index: 1;
-  }
-  .preview-elegant-title {
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    line-height: 1;
-  }
-  .preview-elegant-wheel {
-    width: 38px;
-    height: 38px;
-    border-radius: 19px;
-    border: 2px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-  .preview-elegant-wheel-core {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-  }
-  .preview-elegant-rule {
-    width: 56px;
-    height: 1px;
-  }
-
-  .theme-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: auto;
-  }
-  
-  .theme-card-footnote {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--muted-text);
-  }
+  .theme-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; width:100%; }
+  button { appearance:none; min-width:0; padding:1rem; border:1.5px solid var(--border); border-radius:1.25rem; color:var(--text); background:var(--surface); text-align:left; cursor:pointer; box-shadow:0 4px 12px rgb(15 23 42 / .05); transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
+  button:hover { transform:translateY(-2px); }
+  button:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+  button.selected { border-color:var(--accent); box-shadow:0 10px 24px var(--glow); }
+  .copy { display:block; min-height:3.6rem; }
+  strong,small { display:block; }
+  strong { font-size:1.05rem; letter-spacing:-.02em; }
+  small { margin-top:.3rem; color:var(--subtext); font-size:.78rem; line-height:1.35; }
+  .preview { display:flex; align-items:center; gap:1rem; height:6rem; margin:.8rem 0; padding:1rem; overflow:hidden; border-radius:1rem; background:var(--muted); }
+  .wheel { display:grid; place-items:center; width:3.5rem; aspect-ratio:1; flex:none; border:9px solid var(--accent); border-right-color:var(--strong); border-radius:50%; transform:rotate(-35deg); }
+  .wheel i { width:.7rem; aspect-ratio:1; border-radius:50%; background:var(--surface); box-shadow:0 0 0 2px var(--border); }
+  .lines { flex:1; }
+  .lines i { display:block; height:.45rem; margin:.48rem 0; border-radius:1rem; background:var(--text); opacity:.88; }
+  .lines i:nth-child(2) { width:72%; background:var(--accent); }
+  .lines i:nth-child(3) { width:48%; background:var(--strong); }
+  .status { display:flex; align-items:center; justify-content:space-between; color:var(--subtext); font-size:.75rem; font-weight:700; }
+  .status i { width:.7rem; aspect-ratio:1; border:2px solid var(--accent); border-radius:50%; background:transparent; }
+  .selected .status i { background:var(--accent); box-shadow:inset 0 0 0 2px var(--surface); }
+  @media (min-width:720px) { .theme-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media (min-width:1100px) { .theme-grid { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+  @media (prefers-reduced-motion:reduce) { button { transition:none; } button:hover { transform:none; } }
 </style>

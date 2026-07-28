@@ -1,6 +1,6 @@
 # Wheelora Web Lab
 
-Open-source Astro + Svelte learning project for [Wheelora](https://wheelora.ai), an AI decision wheel concept built around fast choices, local-first creation, starter packs, weighted spins, and a playful interactive demo.
+Open-source Astro + Svelte learning project for [Wheelora](https://wheelora.ai), an AI decision wheel product built around fast choices, local-first creation, weighted spins, reusable single and multi-wheel decisions, and sharing.
 
 This repository is intentionally the public web experience only. The mobile app, backend API, database schema, and private product docs live elsewhere.
 
@@ -44,7 +44,7 @@ Captured Apr 27, 2026 at 11:01 PM CDT with Lighthouse 13.0.1, mobile emulation, 
 If you are here to learn from the project, these are the most interesting parts:
 
 - Astro page architecture with shared SEO and structured data
-- Svelte 5 interactive wheel demo embedded into static pages
+- Svelte 5 interactive wheel demo with hard-coded sample content embedded into static pages
 - weighted spin logic with physics-inspired easing
 - SVG text fitting on wheel arcs
 - mobile-first layout with no layout shift in the Lighthouse run
@@ -68,13 +68,13 @@ Key pieces:
 
 ### Svelte 5
 
-Svelte powers the interactive product demo: wheel lists, theme switching, animated spins, result states, and SVG text fitting. The static pages stay Astro-rendered, while Svelte handles the parts that need state and motion.
+Svelte powers the interactive product demo: wheel lists, theme switching, animated spins, result states, and SVG text fitting. Its content is a hard-coded sample and does not make a live AI request. The static pages stay Astro-rendered, while Svelte handles the parts that need state and motion.
 
 Important demo files:
 
 - `src/components/svelte/WebDemoApp.svelte`
-- `src/components/svelte/WheelUI.svelte`
 - `src/components/svelte/ThemeShowcase.svelte`
+- `src/components/svelte/SharedWheelViewer.svelte`
 - `src/store/theme.ts`
 
 ### TypeScript
@@ -85,6 +85,8 @@ The spin physics, weighted result calculation, and text fitting helpers are writ
 - `src/lib/textPathFitting.ts`
 
 The wheel demo uses weighted outcomes, secure random sampling when available, SVG arc labels, and bounded animation timing so the UI feels close to the app without needing the app runtime.
+
+The mobile product also supports multiple saved single or multi-wheel decisions, image and live-link sharing, Siri and Shortcuts handoff, home-screen widgets, and signed-in privacy controls for data export and account deletion. Signed-in sync is available on Free; Pro raises configured AI and saved-wheel limits and unlocks all 10 app themes. The standalone web embed supports four themes and defaults to Minimal.
 
 ### CSS
 

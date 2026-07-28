@@ -1,0 +1,16 @@
+---
+import HomePage from "../../components/HomePage.astro";
+import { HOME_COPY, getHomeCopy } from "../../i18n/home";
+
+export function getStaticPaths() {
+  return Object.keys(HOME_COPY)
+    .filter((locale) => locale !== "en")
+    .map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as keyof typeof HOME_COPY;
+const copy = getHomeCopy(locale);
+if (!copy) return Astro.redirect("/");
+---
+
+<HomePage locale={locale} copy={copy} />

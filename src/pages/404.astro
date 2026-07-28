@@ -20,7 +20,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <div class="button-row notfound-actions">
           <a class="button button-primary" href="/">Back to homepage</a>
           <a class="button button-secondary" href="/faq">Open FAQ</a>
-          <a class="button button-secondary" href="/#waitlist">Join waitlist</a>
+          <a
+            class="button button-secondary"
+            href="/#waitlist"
+            data-release-only="prelaunch"
+          >
+            Join waitlist
+          </a>
+          <a
+            class="button button-secondary"
+            href="wheelora://"
+            data-app-url="wheelora://"
+            data-open-wheelora
+            data-release-only="released"
+          >
+            Open Wheelora
+          </a>
         </div>
       </article>
     </div>
