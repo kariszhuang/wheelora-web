@@ -20,7 +20,6 @@ interface Props {
   noindex?: boolean;
   deferSeo?: boolean;
   structuredData?: Record<string, unknown>[];
-  appUrl?: string;
   locale?: LocaleCode;
   copy?: HomeCopy;
 }
@@ -36,7 +35,6 @@ const {
   noindex = false,
   deferSeo = false,
   structuredData = [],
-  appUrl = "wheelora://",
   locale = DEFAULT_LOCALE,
   copy,
 } = Astro.props;
@@ -178,7 +176,7 @@ const baseStructuredData: Record<string, unknown>[] = [
 ---
 
 <!doctype html>
-<html lang={activeLocale.htmlLang} dir={activeLocale.dir} data-app-release="prelaunch">
+<html lang={activeLocale.htmlLang} dir={activeLocale.dir} data-app-store-url={site.appStoreUrl}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -279,11 +277,8 @@ const baseStructuredData: Record<string, unknown>[] = [
                 ))}
               </select>
             </label>
-            <a class="button button-ghost header-cta" href={localizePath(activeLocale.code, "/#waitlist")} data-release-only="prelaunch">
-              {copy?.nav.join ?? "Join waitlist"}
-            </a>
-            <a class="button button-dark header-cta" href={appUrl} data-app-url={appUrl} data-open-wheelora data-release-only="released">
-              {copy?.hero.openApp ?? "Open Wheelora"} <span aria-hidden="true">↗</span>
+            <a class="button button-dark header-cta" href={site.appStoreUrl}>
+              {copy?.hero.appStore ?? "App Store"} <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>
@@ -329,54 +324,9 @@ const baseStructuredData: Record<string, unknown>[] = [
     </div>
 
     <script>
-      import { resolveAppleAppStoreUrl } from "../lib/appStoreUrl";
       import { resolveLocaleFromTags } from "../i18n/localeMatching";
 
-      declare global {
-        interface Window {
-          __WHEELORA_APP_STORE_URL__?: string;
-        }
-      }
-
-      const releaseEventName = "wheelora:app-release";
-
-      function applyReleaseState(appStoreUrl: string | null) {
-        const release = appStoreUrl ? "released" : "prelaunch";
-        document.documentElement.dataset.appRelease = release;
-
-        if (appStoreUrl) {
-          window.__WHEELORA_APP_STORE_URL__ = appStoreUrl;
-          document.querySelectorAll<HTMLAnchorElement>("[data-app-store-link]")
-            .forEach((link) => {
-              link.href = appStoreUrl;
-            });
-        } else {
-          delete window.__WHEELORA_APP_STORE_URL__;
-        }
-
-        window.dispatchEvent(
-          new CustomEvent(releaseEventName, {
-            detail: { appStoreUrl },
-          }),
-        );
-      }
-
-      async function loadReleaseState() {
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 4_000);
-        try {
-          const response = await fetch("/api/v1/app-config/public", {
-            headers: { Accept: "application/json" },
-            signal: controller.signal,
-          });
-          if (!response.ok) throw new Error("App config unavailable");
-          applyReleaseState(resolveAppleAppStoreUrl(await response.json()));
-        } catch {
-          applyReleaseState(null);
-        } finally {
-          window.clearTimeout(timeoutId);
-        }
-      }
+      const appStoreUrl = document.documentElement.dataset.appStoreUrl!;
 
       function isWheeloraAppUrl(value: string) {
         try {
@@ -387,7 +337,6 @@ const baseStructuredData: Record<string, unknown>[] = [
       }
 
       function openWheelora(appUrl: string) {
-        const appStoreUrl = window.__WHEELORA_APP_STORE_URL__;
         let leftPage = false;
         let fallbackId = 0;
 
@@ -409,12 +358,10 @@ const baseStructuredData: Record<string, unknown>[] = [
         document.addEventListener("visibilitychange", handleVisibility);
         window.addEventListener("pagehide", handlePageHide, { once: true });
 
-        if (appStoreUrl) {
-          fallbackId = window.setTimeout(() => {
-            cleanup();
-            if (!leftPage) window.location.assign(appStoreUrl);
-          }, 1_300);
-        }
+        fallbackId = window.setTimeout(() => {
+          cleanup();
+          if (!leftPage) window.location.assign(appStoreUrl);
+        }, 1_300);
 
         window.location.assign(appUrl);
       }
@@ -460,7 +407,6 @@ const baseStructuredData: Record<string, unknown>[] = [
         languageSuggestion.hidden = true;
       });
 
-      void loadReleaseState();
     </script>
   </body>
 </html>

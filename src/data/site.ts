@@ -5,7 +5,7 @@ export const site = {
   description:
     "Wheelora™ turns a title into an AI-built wheel with six tones, weighted physics, multi-wheel Spin All, sharing, sync, widgets, and privacy controls.",
   url: "https://wheelora.ai",
-  waitlistUrl: "/#waitlist",
+  appStoreUrl: "https://apps.apple.com/us/app/wheelora/id6770766627",
   supportEmail: "support@wheelora.ai",
   language: "en-US",
   locale: "en_US",

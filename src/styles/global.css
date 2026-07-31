@@ -41,8 +41,6 @@ ul, ol { margin: 0; }
 .skip-link:focus { top: 1rem; }
 :focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
 #main-content:focus { outline: none; }
-[data-app-release="prelaunch"] [data-release-only="released"],
-[data-app-release="released"] [data-release-only="prelaunch"] { display: none !important; }
 
 .site-header { background: rgba(252, 248, 240, .88); border-bottom: 1px solid rgba(103, 95, 85, .2); position: sticky; top: 0; backdrop-filter: blur(18px); z-index: 100; }
 .header-inner { align-items: center; display: grid; gap: 1.5rem; grid-template-columns: 1fr auto 1fr; min-height: 4.75rem; }
@@ -170,12 +168,6 @@ ul, ol { margin: 0; }
 .release-cta h2 { max-width: 12ch; }
 .release-cta .button-row { justify-content: center; margin-top: .4rem; }
 .release-cta .button-secondary { background: rgba(255,255,255,.94); }
-.waitlist-form { display: grid; gap: .65rem; grid-template-columns: minmax(14rem, 24rem) auto; margin-top: .75rem; width: min(100%, 36rem); }
-.waitlist-form input { background: white; border: 2px solid transparent; border-radius: 999px; color: var(--ink); min-height: 48px; min-width: 0; outline: none; padding: .8rem 1rem; }
-.waitlist-form input:focus-visible { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(255,255,255,.5); }
-.waitlist-status { color: white; font-size: .9rem; min-height: 1.55rem; }
-.waitlist-status[data-state="success"] { color: #d6fff1; }
-.waitlist-status[data-state="error"] { color: #fff0ad; }
 
 .site-footer { background: var(--ink); color: white; padding: 3rem 0 6rem; }
 .footer-grid { align-items: center; display: flex; gap: 2rem; justify-content: space-between; }
@@ -293,7 +285,6 @@ ul, ol { margin: 0; }
   .trust-visual img { max-height: 32rem; }
   .plans-grid, .guide-use-grid { grid-template-columns: 1fr; }
   .plans-intro { grid-column: auto; padding-right: 0; }
-  .waitlist-form { grid-template-columns: 1fr; }
   .footer-grid { align-items: flex-start; flex-direction: column; }
   .footer-links { justify-content: flex-start; }
   .comparison-table { min-width: 0; }

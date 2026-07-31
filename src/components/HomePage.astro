@@ -5,6 +5,7 @@ import WebDemoApp from "./svelte/WebDemoApp.svelte";
 import type { HomeCopy } from "../i18n/home";
 import type { LocaleCode } from "../i18n/locales";
 import { THEME_SHOWCASE_COPY } from "../i18n/themeShowcase.generated";
+import { site } from "../data/site";
 
 interface Props {
   copy: HomeCopy;
@@ -32,15 +33,9 @@ const featureImages = [
         <div class="eyebrow"><span></span>{copy.hero.eyebrow}</div>
         <h1>{copy.hero.lineOne}<br /><em>{copy.hero.lineTwo}</em></h1>
         <p class="hero-lede">{copy.hero.lede}</p>
-        <div class="button-row hero-actions" data-release-only="prelaunch">
+        <div class="button-row hero-actions">
           <a class="button button-primary" href="#demo">{copy.hero.tryDemo}</a>
-          <a class="button button-secondary" href="#waitlist">{copy.hero.joinList}</a>
-        </div>
-        <div class="button-row hero-actions" data-release-only="released">
-          <a class="button button-primary" href="wheelora://" data-app-url="wheelora://" data-open-wheelora>
-            {copy.hero.openApp} <span aria-hidden="true">↗</span>
-          </a>
-          <a class="button button-secondary" href="#waitlist" data-app-store-link>{copy.hero.appStore}</a>
+          <a class="button button-secondary" href={site.appStoreUrl}>{copy.hero.appStore}</a>
         </div>
       </div>
 
@@ -161,48 +156,14 @@ const featureImages = [
     </div>
   </section>
 
-  <section class="cta-section" id="waitlist">
-    <div class="container" data-release-only="prelaunch">
-      <div class="eyebrow">{copy.waitlist.eyebrow}</div>
-      <h2>{copy.waitlist.title}</h2>
-      <p>{copy.waitlist.copy}</p>
-      <form class="waitlist-form" data-waitlist-form>
-        <label class="sr-only" for="waitlist-email">{copy.waitlist.email}</label>
-        <input id="waitlist-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
-        <button class="button button-primary" type="submit">{copy.waitlist.join}</button>
-      </form>
-      <p class="waitlist-status" data-waitlist-status aria-live="polite"></p>
-    </div>
-    <div class="container release-cta" data-release-only="released">
+  <section class="cta-section" id="get-wheelora">
+    <div class="container release-cta">
       <div class="eyebrow">{copy.waitlist.appTitle}</div>
       <h2>{copy.waitlist.appHeading}</h2>
       <div class="button-row">
         <a class="button button-primary" href="wheelora://" data-app-url="wheelora://" data-open-wheelora>{copy.waitlist.openApp} <span aria-hidden="true">↗</span></a>
-        <a class="button button-secondary" href="#waitlist" data-app-store-link>{copy.waitlist.store}</a>
+        <a class="button button-secondary" href={site.appStoreUrl}>{copy.waitlist.store}</a>
       </div>
     </div>
   </section>
-
-  <script define:vars={{ saving: copy.waitlist.saving, success: copy.waitlist.success, error: copy.waitlist.error }}>
-    const form = document.querySelector("[data-waitlist-form]");
-    const status = document.querySelector("[data-waitlist-status]");
-
-    form?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!(form instanceof HTMLFormElement) || !form.reportValidity()) return;
-      const emailInput = form.elements.namedItem("email");
-      const button = form.querySelector("button");
-      if (!(emailInput instanceof HTMLInputElement) || !(button instanceof HTMLButtonElement)) return;
-      button.disabled = true;
-      if (status instanceof HTMLElement) { status.textContent = saving; status.dataset.state = "pending"; }
-      try {
-        const response = await fetch("/api/v1/waitlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: emailInput.value.trim(), source: "homepage" }) });
-        if (!response.ok) throw new Error("Waitlist request failed");
-        form.reset();
-        if (status instanceof HTMLElement) { status.textContent = success; status.dataset.state = "success"; }
-      } catch {
-        if (status instanceof HTMLElement) { status.textContent = error; status.dataset.state = "error"; }
-      } finally { button.disabled = false; }
-    });
-  </script>
 </BaseLayout>

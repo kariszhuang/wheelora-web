@@ -27,7 +27,7 @@ const body = [
     "Signed-in privacy controls support export of synced data and deletion of the account and synced data.",
     "The web embed supports Minimal, Playful, Dark, and Elegant and defaults to Minimal; the mobile app has 10 themes.",
     "The homepage demo is interactive hard-coded sample content, not a live AI request.",
-    "Website app-download prompts remain in prelaunch waitlist mode until a valid iOS App Store listing is published through runtime configuration.",
+    "Website app-download prompts use a static iOS App Store link.",
     "A public shared-wheel page renders the saved snapshot and lets visitors spin it in the browser; after app release, its Open action preserves the exact shared-wheel deep link.",
   ]),
   "",

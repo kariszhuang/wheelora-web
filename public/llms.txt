@@ -15,11 +15,11 @@ Important product facts:
 - The mobile app has 10 visual themes. The web embed supports Minimal, Playful, Dark, and Elegant, with Minimal as its default.
 - The homepage wheel is interactive but uses hard-coded sample content; it does not make a live AI request.
 - The public website is static-first, crawlable, and has canonical URLs, structured data, a sitemap, and social preview metadata.
-- Website app-download prompts are availability-aware: they show the prelaunch waitlist until Wheelora publishes a valid iOS App Store listing in runtime configuration.
+- Website app-download prompts link directly to Wheelora on the App Store.
 
 ## Primary Pages
 
-- [Homepage](https://wheelora.ai/): Product overview, interactive sample wheel, availability-aware app or waitlist actions, themes, use cases, plans, and core AI decision wheel answers.
+- [Homepage](https://wheelora.ai/): Product overview, interactive sample wheel, App Store link, themes, use cases, plans, and core AI decision wheel answers.
 - [AI decision wheel guide](https://wheelora.ai/ai-decision-wheel/): Search-friendly explanation of AI decision wheels, weighted spin wheels, random pickers, use cases, limitations, and FAQs.
 - [FAQ](https://wheelora.ai/faq/): Questions and answers about AI optimization, guest mode, free usage, Pro usage, and safety limits.
 - [Embed widget documentation](https://wheelora.ai/widget/): How to add the `<wheelora>` embeddable spin wheel web component to another website.

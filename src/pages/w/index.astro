@@ -1,13 +1,13 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SharedWheelViewer from "../../components/svelte/SharedWheelViewer.svelte";
+import { site } from "../../data/site";
 ---
 
 <BaseLayout
   title="Shared Wheel | Wheelora™"
   canonicalPath="/w"
   deferSeo={true}
-  appUrl="__SHARED_WHEEL_APP_URL__"
 >
   <Fragment slot="head">
     __SHARED_WHEEL_HEAD__
@@ -159,14 +159,7 @@ import SharedWheelViewer from "../../components/svelte/SharedWheelViewer.svelte"
       <hr class="sw-divider" />
 
       <section class="sw-acquisition" aria-label="Get Wheelora for this shared wheel">
-        <div class="sw-acquisition-copy" data-release-only="prelaunch">
-          <span class="sw-acquisition-kicker">Wheelora for iPhone</span>
-          <h2 id="sw-acquisition-title">Spin now. Save it later.</h2>
-          <p>
-            Join the launch list to know when the app is ready.
-          </p>
-        </div>
-        <div class="sw-acquisition-copy" data-release-only="released">
+        <div class="sw-acquisition-copy">
           <span class="sw-acquisition-kicker">Keep this wheel</span>
           <h2 id="sw-acquisition-title-released">Save a copy in Wheelora.</h2>
           <p class="sw-install-note">
@@ -176,25 +169,15 @@ import SharedWheelViewer from "../../components/svelte/SharedWheelViewer.svelte"
         <div class="sw-cta-row">
           <a
             class="btn-primary"
-            href="/#waitlist"
-            data-release-only="prelaunch"
-          >
-            Join the launch list
-          </a>
-          <a
-            class="btn-primary"
             href="__SHARED_WHEEL_APP_URL__"
             data-app-url="__SHARED_WHEEL_APP_URL__"
             data-open-wheelora
-            data-release-only="released"
           >
             Open in Wheelora <span aria-hidden="true">↗</span>
           </a>
           <a
             class="btn-ghost"
-            href="/#waitlist"
-            data-app-store-link
-            data-release-only="released"
+            href={site.appStoreUrl}
           >
             App Store
           </a>

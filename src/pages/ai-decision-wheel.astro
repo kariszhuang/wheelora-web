@@ -65,24 +65,19 @@ const articleSchema = {
         suggest practical options, tune the tone, support weighted probabilities, and then spin to
         pick a low-stakes next step.
       </p>
-      <div class="button-row" data-release-only="prelaunch">
+      <div class="button-row">
         <a class="button button-primary" href="/#demo">Try the demo</a>
-        <a class="button button-secondary" href="/#waitlist">Join waitlist</a>
-      </div>
-      <div class="button-row" data-release-only="released">
         <a
-          class="button button-primary"
+          class="button button-secondary"
           href="wheelora://"
           data-app-url="wheelora://"
           data-open-wheelora
         >
           Open Wheelora <span aria-hidden="true">↗</span>
         </a>
-        <a class="button button-secondary" href="/#demo">Try the web wheel</a>
         <a
           class="button button-secondary"
-          href="/#waitlist"
-          data-app-store-link
+          href={site.appStoreUrl}
         >
           Get the iPhone app
         </a>

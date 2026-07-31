@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
 ---
 
 <BaseLayout
@@ -22,20 +23,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <a class="button button-secondary" href="/faq">Open FAQ</a>
           <a
             class="button button-secondary"
-            href="/#waitlist"
-            data-release-only="prelaunch"
-          >
-            Join waitlist
-          </a>
-          <a
-            class="button button-secondary"
             href="wheelora://"
             data-app-url="wheelora://"
             data-open-wheelora
-            data-release-only="released"
           >
             Open Wheelora
           </a>
+          <a class="button button-secondary" href={site.appStoreUrl}>App Store</a>
         </div>
       </article>
     </div>

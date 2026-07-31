@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { site } from "../../data/site";
 ---
 
 <BaseLayout
@@ -7,7 +8,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   description="Open a Wheelora referral invite."
   canonicalPath="/r"
   noindex={true}
-  appUrl="__REFERRAL_APP_URL__"
 >
   <Fragment slot="head">
     <style>
@@ -98,16 +98,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           href="__REFERRAL_APP_URL__"
           data-app-url="__REFERRAL_APP_URL__"
           data-open-wheelora
-          data-release-only="released"
         >
           Open this invite
-        </a>
-        <a
-          class="button button-secondary"
-          href="/#waitlist"
-          data-release-only="prelaunch"
-        >
-          Join waitlist
         </a>
         <button
           class="button button-secondary"
@@ -119,17 +111,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         </button>
         <a
           class="button button-secondary"
-          href="/#waitlist"
-          data-app-store-link
-          data-release-only="released"
+          href={site.appStoreUrl}
         >
           Get Wheelora
         </a>
       </div>
-      <p class="referral-note" data-release-only="prelaunch">
-        Save the code now. We’ll let you know when Wheelora is ready to open it.
-      </p>
-      <p class="referral-note" data-release-only="released">
+      <p class="referral-note">
         Opens this invite in Wheelora. If the app is not installed, you can
         continue to the App Store.
       </p>
